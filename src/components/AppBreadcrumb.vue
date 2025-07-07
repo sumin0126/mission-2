@@ -4,20 +4,42 @@
       <ol class="breadcrumb-list">
         <!-- Server (가상의 홈, 클릭 불가) -->
         <li class="breadcrumb-item">
-          <span class="breadcrumb-text">Server</span>
+          <span class="breadcrumb-text">{{ t('breadcrumb.server') }}</span>
         </li>
         <li class="breadcrumb-separator">
           <span>></span>
         </li>
         <li class="breadcrumb-item">
-          <span class="breadcrumb-text">Instance</span>
+          <span class="breadcrumb-text">{{ t('breadcrumb.instance') }}</span>
         </li>
       </ol>
+
+      <!-- 언어 선택 버튼 -->
+      <div class="language-selector">
+        <button class="language-btn" @click="switchLanguage" :title="currentLanguageInfo.name">
+          <span class="language-flag">{{ currentLanguageInfo.flag }}</span>
+          <span class="language-text">{{ currentLanguageInfo.name }}</span>
+        </button>
+      </div>
     </nav>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { setLanguage, getCurrentLanguageInfo, supportedLanguages } from '@/i18n'
+
+const { t } = useI18n()
+
+const currentLanguageInfo = computed(() => getCurrentLanguageInfo())
+
+const switchLanguage = () => {
+  const currentLang = currentLanguageInfo.value.code
+  const nextLang = supportedLanguages.find((lang) => lang.code !== currentLang)?.code || 'ko'
+  setLanguage(nextLang)
+}
+</script>
 
 <style scoped>
 .breadcrumb-container {
@@ -29,6 +51,9 @@
 
 .breadcrumb {
   padding: 0 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .breadcrumb-list {
@@ -52,6 +77,50 @@
   margin: 0 4px;
 }
 
+/* 언어 선택 버튼 스타일 */
+.language-selector {
+  display: flex;
+  align-items: center;
+}
+
+.language-btn {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  border: 1px solid #d9d9d9;
+  background-color: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 28px;
+  white-space: nowrap;
+}
+
+.language-btn:hover {
+  border-color: #4096ff;
+  background-color: #f0f8ff;
+}
+
+.language-flag {
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.language-text {
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
 /* 반응형 스타일 */
 /* 모바일 - 768px 이하 */
 @media (max-width: 768px) {
@@ -61,6 +130,9 @@
 
   .breadcrumb {
     padding: 0 18px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
   }
 
   .breadcrumb-text {
@@ -70,6 +142,14 @@
   .breadcrumb-separator {
     font-size: 10px;
     margin: 0 2px;
+  }
+
+  .language-selector {
+    align-self: flex-end;
+  }
+
+  .language-text {
+    display: none; /* 모바일에서는 국기만 표시 */
   }
 }
 

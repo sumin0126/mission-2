@@ -5,7 +5,7 @@
 </template>
 
 <style scoped>
-.about {
+.home {
   height: 100%;
   overflow: hidden;
   padding: 20px;
