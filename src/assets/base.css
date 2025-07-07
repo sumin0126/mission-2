@@ -1,4 +1,9 @@
-/* color palette from <https://github.com/vuejs/theme> */
+/*
+========================================
+💎 COLOR PALETTE SYSTEM
+========================================
+Vue.js 테마 색상 시스템 정의
+*/
 :root {
   --vt-c-white: #ffffff;
   --vt-c-white-soft: #f8f8f8;
@@ -21,7 +26,12 @@
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
 }
 
-/* semantic color variables for this project */
+/*
+========================================
+🎨 SEMANTIC COLOR VARIABLES
+========================================
+프로젝트에서 사용할 의미론적 색상 변수 정의
+*/
 :root {
   --color-background: var(--vt-c-white);
   --color-background-soft: var(--vt-c-white-soft);
@@ -36,6 +46,12 @@
   --section-gap: 160px;
 }
 
+/*
+========================================
+🌙 DARK MODE SUPPORT
+========================================
+사용자 브라우저가 다크모드를 선호할 때 색상 변경
+*/
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: var(--vt-c-black);
@@ -50,16 +66,28 @@
   }
 }
 
+/*
+========================================
+🧹 UNIVERSAL CSS RESET
+========================================
+모든 요소(*) 선택자를 사용한 전역 CSS 초기화
+*/
 *,
 *::before,
 *::after {
   box-sizing: border-box;
   margin: 0;
+  padding: 0;
   font-weight: normal;
 }
 
+/*
+========================================
+📱 BODY STYLING
+========================================
+body 태그 기본 스타일 설정 (인라인 스타일과 함께 사용)
+*/
 body {
-  min-height: 100vh;
   color: var(--color-text);
   background: var(--color-background);
   transition: color 0.5s, background-color 0.5s;
@@ -70,4 +98,23 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+========================================
+🔧 RESTORE NECESSARY PADDING
+========================================
+기본 패딩이 필요한 요소들의 패딩 복구
+사용자 경험을 위해 일부 요소의 기본 패딩 유지
+*/
+input,
+textarea,
+button,
+select {
+  padding: revert;
+}
+
+ul,
+ol {
+  padding-left: revert;
 }

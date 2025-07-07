@@ -1,9 +1,11 @@
 <template>
   <header class="app-header">
     <div class="header-container">
-      <div class="logo-section">
-        <img src="/images/logo_header.png" alt="KT cloud" class="logo-image" />
-      </div>
+      <router-link to="/">
+        <div class="logo-section">
+          <img src="/images/logo_header.png" alt="KT cloud" class="logo-image" />
+        </div>
+      </router-link>
     </div>
   </header>
 </template>
@@ -22,10 +24,10 @@
   top: 0;
   z-index: 1000;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .header-container {
-  width: 100%;
   padding: 0 24px;
   height: 100%;
   display: flex;
@@ -35,6 +37,7 @@
 .logo-section {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .logo-image {
