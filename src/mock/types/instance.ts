@@ -3,9 +3,9 @@ export interface Instance {
   id: string
   name: string
   status: 'RUNNING' | 'SHUTDOWN'
-  flavor: string // Flavor name (예: "C1M2D20")
-  image: string // Image name (예: "ubuntu-2204-kube-v1.31.10")
-  network: string // Network name (예: "private-network")
+  flavor: string // "C1M2D20"
+  image: string // "ubuntu-2204-kube-v1.31.10"
+  network: string // "private-network"
   cpu: number
   memory: number
   disk: number
@@ -15,18 +15,29 @@ export interface Instance {
   createdAt: string
 }
 
+// API 응답 타입
+export interface InstancesResponse {
+  instances: Instance[]
+}
+
 // 생성 타입
 export interface CreateInstanceRequest {
   name: string
-  flavor: string // Flavor name
-  image: string // Image name
-  network: string // Network name
+  flavor: string
+  image: string
+  network: string
 }
 
 // 수정 타입
 export interface UpdateInstanceRequest {
   name?: string
-  flavor?: string // Flavor 변경 가능
-  image?: string // Image 변경 가능
-  network?: string // Network 변경 가능
+  flavor?: string
+  image?: string
+  network?: string
+}
+
+// 전원 상태 업데이트 타입
+export interface PowerUpdateRequest {
+  powerOn: boolean
+  status: 'RUNNING' | 'SHUTDOWN'
 }
