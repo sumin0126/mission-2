@@ -16,7 +16,7 @@
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
     "@tanstack/vue-query": "5.74.6",
-    "ant-design-vue": "4.2.6",
+    "ant-design-vue": "4.x",
     "axios": "^1.10.0",
     "lodash": "4.17.21",
     "pinia": "^2.3.1",

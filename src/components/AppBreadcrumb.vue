@@ -1,8 +1,8 @@
 <template>
   <div class="breadcrumb-container">
     <nav class="breadcrumb">
+      <!-- 현재 페이지 경로 (가상으로 클릭 불가) -->
       <ol class="breadcrumb-list">
-        <!-- Server (가상의 홈, 클릭 불가) -->
         <li class="breadcrumb-item">
           <span class="breadcrumb-text">{{ t('breadcrumb.server') }}</span>
         </li>
@@ -34,10 +34,12 @@ const { t } = useI18n()
 
 const currentLanguageInfo = computed(() => getCurrentLanguageInfo())
 
+// 언어 전환 함수 (한국어 ↔ 영어)
 const switchLanguage = () => {
   const currentLang = currentLanguageInfo.value.code
   const nextLang = supportedLanguages.find((lang) => lang.code !== currentLang)?.code || 'ko'
   setLanguage(nextLang)
+  console.log('변경된 언어:', nextLang)
 }
 </script>
 
@@ -130,9 +132,9 @@ const switchLanguage = () => {
 
   .breadcrumb {
     padding: 0 18px;
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
-    align-items: flex-start;
+    align-items: center;
   }
 
   .breadcrumb-text {
