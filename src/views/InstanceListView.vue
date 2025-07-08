@@ -18,14 +18,27 @@
       </div>
     </div>
 
+    <!-- 에러 메시지 -->
+    <div v-if="instanceStore.error" class="error-message">
+      {{ instanceStore.error }}
+    </div>
+
+    <!-- 로딩 상태 -->
+    <div v-if="instanceStore.isLoading" class="loading-state">데이터를 불러오는 중...</div>
+
     <!-- 인스턴스 테이블 -->
-    <div class="table-container">
+    <div v-else class="table-container">
       <table class="instance-table">
         <thead>
           <tr>
-            <!- 체크박스 전체 선택 -->
+            <!-- 체크박스 전체 선택 -->
             <th class="checkbox-column">
-              <input type="checkbox" @change="selectAll" :checked="isAllSelected" />
+              <input
+                type="checkbox"
+                @change="selectAll"
+                :checked="isAllSelected"
+                :disabled="!instanceStore.instances.length"
+              />
             </th>
             <th>인스턴스</th>
             <th>전원상태</th>
@@ -37,7 +50,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="instance in instanceStore.instances" :key="instance.id">
+          <tr v-if="!instanceStore.instances.length">
+            <td colspan="8" class="no-data">인스턴스가 없습니다.</td>
+          </tr>
+          <tr v-else v-for="instance in instanceStore.instances" :key="instance.id">
             <!-- 1) 체크박스 -->
             <!-- 사용자가 체크 박스 클릭 ->  selectedInstanceIds 배열에 해당 ID 추가 -->
             <td class="checkbox-column">
@@ -87,15 +103,23 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useInstanceStore } from '@/stores/instances'
+import { useInstancesStore } from '@/stores/instances'
 import type { Instance } from '@/mock/types/instance'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
-const instanceStore = useInstanceStore()
+const instanceStore = useInstancesStore()
 const selectedInstanceIds = ref<string[]>([]) // 선택된 인스턴스 ID들을 저장할 배열
+const router = useRouter()
+const { t } = useI18n()
 
 // 컴포넌트 마운트 시 인스턴스 목록 로드
 onMounted(async () => {
-  await instanceStore.getInstances()
+  try {
+    await instanceStore.initInstances()
+  } catch (error) {
+    console.error('인스턴스 목록 로드 실패:', error)
+  }
 })
 
 // 모든 인스턴스가 선택되었는지를 판단하는 함수 (boolean 반환)
@@ -109,8 +133,9 @@ const isAllSelected = computed(() => {
 // 전체 선택/해제 함수
 const selectAll = (event: Event) => {
   const target = event.target as HTMLInputElement
+  // 체크박스가 전체 선택 되었을때, 모든 인스턴스의 ID를 배열로 만들어서 저장
   if (target.checked) {
-    selectedInstanceIds.value = instanceStore.instances.map((instance) => instance.id)
+    selectedInstanceIds.value = instanceStore.instances.map((instance: Instance) => instance.id)
   } else {
     selectedInstanceIds.value = []
   }
@@ -120,7 +145,6 @@ const selectAll = (event: Event) => {
 const togglePower = async (instance: Instance) => {
   try {
     await instanceStore.toggleInstancePower(instance.id)
-    console.log(`${instance.name} 전원 상태 변경:`, instance.powerOn)
   } catch (error) {
     console.error('전원 상태 변경 실패:', error)
   }
@@ -131,13 +155,17 @@ const deleteSelectedInstances = async () => {
   if (selectedInstanceIds.value.length === 0) return
 
   const confirmed = confirm(
-    `선택한 ${selectedInstanceIds.value.length}개의 인스턴스를 삭제하시겠습니까?`
+    t('instance.messages.deleteConfirm', { count: selectedInstanceIds.value.length })
   )
   if (confirmed) {
     try {
-      await instanceStore.bulkDeleteInstances(selectedInstanceIds.value)
+      // 순차적으로 삭제 처리
+      for (const id of selectedInstanceIds.value) {
+        await instanceStore.deleteInstance(id)
+      }
       selectedInstanceIds.value = []
-      console.log('선택된 인스턴스들이 삭제되었습니다.')
+      // 삭제 후 목록 갱신
+      await instanceStore.initInstances()
     } catch (error) {
       console.error('인스턴스 삭제 실패:', error)
     }
@@ -146,8 +174,8 @@ const deleteSelectedInstances = async () => {
 
 // 인스턴스 생성 페이지로 이동하는 함수
 const navigateToCreatePage = () => {
-  // 생성 페이지로 이동하는 로직 추가
-  console.log('인스턴스 생성 페이지로 이동')
+  // TODO: 인스턴스 생성 페이지 구현 후 라우팅 추가
+  router.push({ name: 'instanceCreate' })
 }
 </script>
 
@@ -480,5 +508,26 @@ input[type='checkbox'] {
   .instance-list {
     padding: 24px 30px;
   }
+}
+
+.error-message {
+  padding: 12px;
+  margin-bottom: 16px;
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 4px;
+  color: #ff4d4f;
+}
+
+.loading-state {
+  padding: 24px;
+  text-align: center;
+  color: #8c8c8c;
+}
+
+.no-data {
+  text-align: center;
+  padding: 24px;
+  color: #8c8c8c;
 }
 </style>
