@@ -37,7 +37,7 @@ export const useInstancesStore = defineStore('instances', () => {
   const error = ref<string | null>(null)
 
   // 인스턴스 목록 조회 (초기화)
-  const initInstances = async () => {
+  const getInstances = async () => {
     isLoading.value = true
     error.value = null
     try {
@@ -179,6 +179,6 @@ export const useInstancesStore = defineStore('instances', () => {
     updateInstance,
     deleteInstance,
     toggleInstancePower,
-    initInstances,
+    getInstances,
   }
 })

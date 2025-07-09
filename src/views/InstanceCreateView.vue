@@ -106,12 +106,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import FlavorSelect from '@/components/instance/create/FlavorSelect.vue'
+import ImageSelect from '@/components/instance/create/ImageSelect.vue'
+import NetworkSelect from '@/components/instance/create/NetworkSelect.vue'
 import { useInstancesStore } from '@/stores/instances'
-import ImageSelect from '@/components/ImageSelect.vue'
-import FlavorSelect from '@/components/FlavorSelect.vue'
-import NetworkSelect from '@/components/NetworkSelect.vue'
 import InstancePreview from '@/components/InstancePreview.vue'
 import type { Flavor } from '@/mock/types/flavor'
+import type { CreateInstanceRequest } from '@/mock/types/instance'
 
 // 타입 정의
 type FormField = 'name' | 'image' | 'flavor' | 'network'
