@@ -18,103 +18,27 @@
       </div>
     </div>
 
-    <!-- 에러 메시지 -->
-    <div v-if="instanceStore.error" class="error-message">
-      {{ instanceStore.error }}
-    </div>
-
-    <!-- 로딩 상태 -->
-    <div v-if="instanceStore.isLoading" class="loading-state">데이터를 불러오는 중...</div>
-
-    <!-- 인스턴스 테이블 -->
-    <div v-else class="table-container">
-      <table class="instance-table">
-        <thead>
-          <tr>
-            <!-- 체크박스 전체 선택 -->
-            <th class="checkbox-column">
-              <input
-                type="checkbox"
-                @change="selectAll"
-                :checked="isAllSelected"
-                :disabled="!instanceStore.instances.length"
-              />
-            </th>
-            <th>인스턴스</th>
-            <th>전원상태</th>
-            <th>CPU</th>
-            <th>메모리</th>
-            <th>디스크</th>
-            <th>IP 주소</th>
-            <th>전원관리</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="!instanceStore.instances.length">
-            <td colspan="8" class="no-data">인스턴스가 없습니다.</td>
-          </tr>
-          <tr v-else v-for="instance in instanceStore.instances" :key="instance.id">
-            <!-- 1) 체크박스 -->
-            <!-- 사용자가 체크 박스 클릭 ->  selectedInstanceIds 배열에 해당 ID 추가 -->
-            <td class="checkbox-column">
-              <input type="checkbox" :value="instance.id" v-model="selectedInstanceIds" />
-            </td>
-            <!-- 2) 인스턴스 이름 -->
-            <td>
-              <router-link
-                :to="{ name: 'instanceDetail', params: { id: instance.id } }"
-                class="instance-link"
-              >
-                {{ instance.name }}
-              </router-link>
-            </td>
-            <!-- 3) 전원 상태 -->
-            <td>
-              <span
-                class="status-tag"
-                :class="{
-                  'status-running': instance.status === 'RUNNING',
-                  'status-shutdown': instance.status === 'SHUTDOWN',
-                }"
-              >
-                {{ instance.status }}
-              </span>
-            </td>
-            <!-- 4) CPU -->
-            <td>{{ instance.cpu }}코어</td>
-            <!-- 5) 메모리 -->
-            <td>{{ instance.memory }}GB</td>
-            <!-- 6) 디스크 -->
-            <td>{{ instance.disk }}GB</td>
-            <!-- 7) 내부 IP 주소 -->
-            <td>{{ instance.privateIp }}</td>
-            <!-- 8) 전원 제어 토글 -->
-            <td>
-              <label class="power-switch">
-                <input
-                  type="checkbox"
-                  :checked="instance.powerOn"
-                  @change="togglePower(instance)"
-                />
-                <span class="slider"></span>
-              </label>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <!-- 인스턴스 테이블 컴포넌트 -->
+    <InstanceTable
+      :instances="instanceStore.instances"
+      :is-loading="instanceStore.isLoading"
+      :error="instanceStore.error"
+      @select="handleInstanceSelection"
+      @togglePower="handlePowerToggle"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useInstancesStore } from '@/stores/instances'
 import type { Instance } from '@/mock/types/instance'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import InstanceTable from '@/components/instance/list/InstanceTable.vue'
 
 const instanceStore = useInstancesStore()
-const selectedInstanceIds = ref<string[]>([]) // 선택된 인스턴스 ID들을 저장할 배열
+const selectedInstanceIds = ref<string[]>([])
 const router = useRouter()
 const { t } = useI18n()
 
@@ -127,27 +51,13 @@ onMounted(async () => {
   }
 })
 
-// 모든 인스턴스가 선택되었는지를 판단하는 함수 (boolean 반환)
-const isAllSelected = computed(() => {
-  return (
-    instanceStore.instances.length > 0 &&
-    selectedInstanceIds.value.length === instanceStore.instances.length
-  )
-})
-
-// 전체 선택/해제 함수
-const selectAll = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  // 체크박스가 전체 선택 되었을때, 모든 인스턴스의 ID를 배열로 만들어서 저장
-  if (target.checked) {
-    selectedInstanceIds.value = instanceStore.instances.map((instance: Instance) => instance.id)
-  } else {
-    selectedInstanceIds.value = []
-  }
+// 인스턴스 선택 처리
+const handleInstanceSelection = (ids: string[]) => {
+  selectedInstanceIds.value = ids
 }
 
-// 전원 토글 함수
-const togglePower = async (instance: Instance) => {
+// 전원 토글 처리
+const handlePowerToggle = async (instance: Instance) => {
   try {
     await instanceStore.toggleInstancePower(instance.id)
   } catch (error) {
@@ -187,7 +97,7 @@ const navigateToCreatePage = () => {
 .instance-list {
   padding: 24px;
   background-color: #ffffff;
-  height: 100%; /* 컨텐츠 높이에 맞춤 */
+  height: 100%;
 }
 
 .action-bar {
@@ -270,148 +180,7 @@ const navigateToCreatePage = () => {
   color: #bfbfbf;
 }
 
-/* 테이블 스타일 */
-.table-container {
-  border: 1px solid #d9d9d9;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #ffffff;
-}
-
-.instance-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.instance-table th {
-  background-color: #fafafa;
-  padding: 12px 16px;
-  text-align: center;
-  font-weight: 600;
-  color: #262626;
-  border-bottom: 1px solid #d9d9d9;
-  border-right: 1px solid #d9d9d9;
-}
-
-.instance-table th:last-child {
-  border-right: none;
-}
-
-.instance-table td {
-  padding: 12px 16px;
-  text-align: center;
-  border-bottom: 1px solid #f0f0f0;
-  border-right: 1px solid #f0f0f0;
-  color: #262626;
-}
-
-.instance-table td:last-child {
-  border-right: none;
-}
-
-.instance-table tbody tr:hover {
-  background-color: #f5f5f5;
-}
-
-.instance-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.checkbox-column {
-  width: 60px;
-}
-
-.instance-name {
-  font-weight: 500;
-  color: #262626;
-}
-
-/* 상태 태그 스타일 */
-.status-tag {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-running {
-  background-color: #f6ffed;
-  color: #52c41a;
-  border: 1px solid #b7eb8f;
-}
-
-.status-shutdown {
-  background-color: #fff2f0;
-  color: #ff4d4f;
-  border: 1px solid #ffccc7;
-}
-
-/* 스위치 스타일 */
-.power-switch {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 22px;
-  cursor: pointer;
-}
-
-/* 커스텀 스위치를 보여주기 위해 기본 input 요소 숨김 처리 */
-.power-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  border-radius: 22px;
-  transition: 0.3s;
-}
-
-/* 슬라이더 원형 버튼 - 가상 요소 생성 */
-.slider:before {
-  position: absolute;
-  content: '';
-  height: 18px;
-  width: 18px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
-  border-radius: 50%;
-  transition: 0.3s;
-}
-
-/* 체크된 상태의 슬라이더 배경 - 체크박스가 선택된 상태일때, 바로 다음에 오는 .slider 요소 선택 */
-input:checked + .slider {
-  background-color: #1890ff;
-}
-
-/* 체크된 상태의 슬라이더 원형 버튼 */
-input:checked + .slider:before {
-  transform: translateX(22px);
-}
-
-.slider:hover {
-  box-shadow: 0 0 5px rgba(24, 144, 255, 0.3);
-}
-
-/* 전체 체크박스 스타일 */
-input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
 /* 반응형 스타일 */
-/* 모바일 - 768px 이하 */
 @media (max-width: 768px) {
   .instance-list {
     padding: 16px;
@@ -452,28 +221,9 @@ input[type='checkbox'] {
     gap: 8px;
   }
 
-  .instance-table {
-    font-size: 12px;
-  }
-
-  .instance-table th,
-  .instance-table td {
-    padding: 8px 12px;
-  }
-
   .btn {
     padding: 6px 12px;
     font-size: 12px;
-  }
-
-  /* 모바일에서는 CPU, 메모리, 디스크 열 숨김 */
-  .instance-table th:nth-child(4),
-  .instance-table td:nth-child(4),
-  .instance-table th:nth-child(5),
-  .instance-table td:nth-child(5),
-  .instance-table th:nth-child(6),
-  .instance-table td:nth-child(6) {
-    display: none;
   }
 }
 
@@ -490,21 +240,6 @@ input[type='checkbox'] {
   .page-title h2 {
     font-size: 19px;
   }
-
-  .instance-table {
-    font-size: 13px;
-  }
-
-  .instance-table th,
-  .instance-table td {
-    padding: 10px 14px;
-  }
-
-  /* 태블릿에서는 디스크 열만 숨김 */
-  .instance-table th:nth-child(6),
-  .instance-table td:nth-child(6) {
-    display: none;
-  }
 }
 
 /* 대형 데스크탑 - 1440px 초과 */
@@ -512,35 +247,5 @@ input[type='checkbox'] {
   .instance-list {
     padding: 24px 30px;
   }
-}
-
-.error-message {
-  padding: 12px;
-  margin-bottom: 16px;
-  background-color: #fff2f0;
-  border: 1px solid #ffccc7;
-  border-radius: 4px;
-  color: #ff4d4f;
-}
-
-.loading-state {
-  padding: 24px;
-  text-align: center;
-  color: #8c8c8c;
-}
-
-.no-data {
-  text-align: center;
-  padding: 24px;
-  color: #8c8c8c;
-}
-
-.instance-link {
-  color: #1890ff;
-  text-decoration: none;
-}
-
-.instance-link:hover {
-  text-decoration: underline;
 }
 </style>
