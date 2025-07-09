@@ -71,33 +71,19 @@
       "privateIp": "172.30.110.169"
     },
     {
-      "id": "4c48",
-      "name": "test-1",
-      "image": "ubuntu-2204-kube-v1.30.9",
-      "flavor": "C4M8D80",
-      "network": "public-network",
-      "cpu": 4,
-      "memory": 8,
-      "disk": 80,
-      "status": "SHUTDOWN",
-      "powerOn": false,
-      "createdAt": "2025-07-09T02:14:24.643Z",
-      "privateIp": "172.30.110.167",
-      "publicIp": "203.0.113.91"
-    },
-    {
-      "id": "18dd",
-      "name": "test",
+      "id": "5839",
+      "name": "외부 test",
       "image": "ubuntu-2204-kube-v1.29.7",
-      "flavor": "C1M2D20",
-      "network": "private-network",
-      "cpu": 1,
-      "memory": 2,
-      "disk": 20,
+      "flavor": "C2M4D40",
+      "network": "public-network",
+      "cpu": 2,
+      "memory": 4,
+      "disk": 40,
       "status": "RUNNING",
       "powerOn": true,
-      "createdAt": "2025-07-09T04:25:50.786Z",
-      "privateIp": "172.30.110.135"
+      "createdAt": "2025-07-09T05:34:26.839Z",
+      "privateIp": "172.30.110.129",
+      "publicIp": "203.0.113.217"
     }
   ]
 }

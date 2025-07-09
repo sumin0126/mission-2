@@ -61,7 +61,12 @@
             </td>
             <!-- 2) 인스턴스 이름 -->
             <td>
-              <span class="instance-name">{{ instance.name }}</span>
+              <router-link
+                :to="{ name: 'instanceDetail', params: { id: instance.id } }"
+                class="instance-link"
+              >
+                {{ instance.name }}
+              </router-link>
             </td>
             <!-- 3) 전원 상태 -->
             <td>
@@ -116,7 +121,7 @@ const { t } = useI18n()
 // 컴포넌트 마운트 시 인스턴스 목록 로드
 onMounted(async () => {
   try {
-    await instanceStore.initInstances()
+    await instanceStore.getInstances()
   } catch (error) {
     console.error('인스턴스 목록 로드 실패:', error)
   }
@@ -165,7 +170,7 @@ const deleteSelectedInstances = async () => {
       }
       selectedInstanceIds.value = []
       // 삭제 후 목록 갱신
-      await instanceStore.initInstances()
+      await instanceStore.getInstances()
     } catch (error) {
       console.error('인스턴스 삭제 실패:', error)
     }
@@ -174,7 +179,6 @@ const deleteSelectedInstances = async () => {
 
 // 인스턴스 생성 페이지로 이동하는 함수
 const navigateToCreatePage = () => {
-  // TODO: 인스턴스 생성 페이지 구현 후 라우팅 추가
   router.push({ name: 'instanceCreate' })
 }
 </script>
@@ -529,5 +533,14 @@ input[type='checkbox'] {
   text-align: center;
   padding: 24px;
   color: #8c8c8c;
+}
+
+.instance-link {
+  color: #1890ff;
+  text-decoration: none;
+}
+
+.instance-link:hover {
+  text-decoration: underline;
 }
 </style>

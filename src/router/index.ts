@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import InstanceListView from '@/views/InstanceListView.vue'
 import InstanceCreateView from '@/views/InstanceCreateView.vue'
+import InstanceDetailView from '@/views/InstanceDetailView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,11 @@ const router = createRouter({
       path: '/instances/create',
       name: 'instanceCreate',
       component: InstanceCreateView,
+    },
+    {
+      path: '/instances/:id',
+      name: 'instanceDetail',
+      component: InstanceDetailView,
     },
   ],
 })
