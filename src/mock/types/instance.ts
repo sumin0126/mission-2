@@ -1,34 +1,37 @@
-// 인스턴스 타입
+// 인스턴스 상세 타입
 export interface Instance {
   id: string
   name: string
-  status: 'RUNNING' | 'SHUTDOWN'
-  flavor: string // "C1M2D20"
-  image: string // "ubuntu-2204-kube-v1.31.10"
-  network: string // "private-network"
+  image: string
+  flavor: string
   cpu: number
   memory: number
   disk: number
-  privateIp: string // 내부 IP (항상 존재)
-  publicIp?: string // 외부 IP (Public 네트워크만)
-  powerOn: boolean // 전원 토글 상태
+  network: string
+  status: 'RUNNING' | 'SHUTDOWN'
+  privateIp?: string
+  publicIp?: string
   createdAt: string
+  powerOn: boolean
 }
 
-// API 응답 타입
-export interface InstancesResponse {
-  instances: Instance[]
-}
+// 인스턴스 목록 타입
+export type InstancesResponse = Instance[]
 
-// 생성 타입
+// 생성 요청 타입
 export interface CreateInstanceRequest {
   name: string
-  flavor: string
   image: string
+  flavor: string
   network: string
 }
 
-// 수정 타입
+// 생성 응답 타입
+export interface CreateInstanceResponse {
+  id: string
+}
+
+// 수정 요청 타입
 export interface UpdateInstanceRequest {
   name?: string
   flavor?: string
@@ -36,7 +39,7 @@ export interface UpdateInstanceRequest {
   network?: string
 }
 
-// 전원 상태 업데이트 타입
+// 전원 상태 요청 타입
 export interface PowerUpdateRequest {
   powerOn: boolean
   status: 'RUNNING' | 'SHUTDOWN'

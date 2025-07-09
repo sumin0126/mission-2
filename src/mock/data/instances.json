@@ -31,7 +31,7 @@
     {
       "id": "inst-005",
       "name": "test-environment",
-      "status": "RUNNING",
+      "status": "SHUTDOWN",
       "flavor": "C2M4D40",
       "image": "ubuntu-2204-kube-v1.30.14",
       "network": "private-network",
@@ -39,7 +39,7 @@
       "memory": 4,
       "disk": 40,
       "privateIp": "172.30.110.86",
-      "powerOn": true,
+      "powerOn": false,
       "createdAt": "2024-02-05T16:30:00Z"
     },
     {
@@ -55,6 +55,13 @@
       "privateIp": "172.30.110.87",
       "powerOn": true,
       "createdAt": "2024-02-10T11:20:00Z"
+    },
+    {
+      "id": "4ffa",
+      "name": "test-instance-01",
+      "image": "ubuntu-2204-kube-v1.30.9",
+      "flavor": "C4M8D80",
+      "network": "private-network"
     }
   ]
 }
