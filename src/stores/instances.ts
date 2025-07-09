@@ -165,6 +165,27 @@ export const useInstancesStore = defineStore('instances', () => {
     }
   }
 
+  // 인스턴스 전원 상태 업데이트
+  const updatePowerStatus = async (
+    instanceId: string,
+    data: { powerOn: boolean; status: 'RUNNING' | 'SHUTDOWN' }
+  ) => {
+    isTogglingPower.value = true
+    try {
+      const response = await instanceAPI.toggleInstancePower(instanceId, data)
+      const index = instances.value.findIndex((inst) => inst.id === instanceId)
+      if (index !== -1) {
+        instances.value[index] = response.data
+      }
+      return response.data
+    } catch (err) {
+      console.error('인스턴스 전원 상태 변경 실패:', err)
+      throw err
+    } finally {
+      isTogglingPower.value = false
+    }
+  }
+
   return {
     instances,
     isLoading,
@@ -180,5 +201,6 @@ export const useInstancesStore = defineStore('instances', () => {
     deleteInstance,
     toggleInstancePower,
     getInstances,
+    updatePowerStatus,
   }
 })

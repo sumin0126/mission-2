@@ -79,8 +79,8 @@
       "cpu": 2,
       "memory": 4,
       "disk": 40,
-      "status": "RUNNING",
-      "powerOn": true,
+      "status": "SHUTDOWN",
+      "powerOn": false,
       "createdAt": "2025-07-09T05:34:26.839Z",
       "privateIp": "172.30.110.129",
       "publicIp": "203.0.113.217"

@@ -2,7 +2,7 @@
   <div class="section-box">
     <div class="section-header">
       <h3>기본 정보</h3>
-      <button class="btn-edit">
+      <button class="btn-edit" @click="openModal">
         <span class="edit-icon">✎</span>
       </button>
     </div>
@@ -30,15 +30,68 @@
         </span>
       </div>
     </div>
+
+    <!-- 수정 모달 -->
+    <EditBasicInfoModal
+      v-if="instance"
+      :is-open="isModalOpen"
+      :instance="instance"
+      @close="closeModal"
+      @save="handleSave"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { Instance } from '@/mock/types/instance'
+import EditBasicInfoModal from './EditBasicInfoModal.vue'
+import { useInstancesStore } from '@/stores/instances'
 
-defineProps<{
+const props = defineProps<{
   instance: Instance | null
 }>()
+
+const instancesStore = useInstancesStore()
+const isModalOpen = ref(false)
+
+// 모달 오픈
+const openModal = () => {
+  isModalOpen.value = true
+}
+
+// 모달 오프
+const closeModal = () => {
+  isModalOpen.value = false
+}
+
+// 변경내용 저장
+const handleSave = async (data: { name: string; power: string }) => {
+  if (!props.instance) return
+
+  try {
+    // 이름 업데이트
+    if (data.name !== props.instance.name) {
+      await instancesStore.updateInstance(props.instance.id, {
+        name: data.name,
+      })
+    }
+
+    // 전원 상태 업데이트
+    const newPowerOn = data.power === 'on'
+    if (newPowerOn !== props.instance.powerOn) {
+      await instancesStore.updatePowerStatus(props.instance.id, {
+        powerOn: newPowerOn,
+        status: newPowerOn ? 'RUNNING' : 'SHUTDOWN',
+      })
+    }
+
+    closeModal()
+  } catch (error) {
+    console.error('인스턴스 업데이트 중 오류:', error)
+    alert('인스턴스 정보 업데이트에 실패했습니다.')
+  }
+}
 </script>
 
 <style scoped>

@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import InstanceBasicInfo from '@/components/instance/detail/BasicInfo.vue'
 import InstanceResourceInfo from '@/components/instance/detail/ResourceInfo.vue'
@@ -45,6 +45,19 @@ onMounted(async () => {
   instance.value = await instancesStore.getInstance(id)
   console.log(route.params)
 })
+
+// 스토어의 인스턴스 데이터가 변경될 때마다 현재 인스턴스 데이터 업데이트
+watch(
+  () => instancesStore.instances,
+  (newInstances) => {
+    const id = route.params.id as string
+    const updatedInstance = newInstances.find((inst) => inst.id === id)
+    if (updatedInstance) {
+      instance.value = updatedInstance
+    }
+  },
+  { deep: true } // 인스턴스 배열 내부의 객체 변경도 감지
+)
 
 // 인스턴스 삭제
 const handleDelete = async () => {
