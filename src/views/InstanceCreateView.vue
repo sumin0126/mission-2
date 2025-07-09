@@ -73,45 +73,18 @@
 
       <!-- 선택된 사양 미리보기 -->
       <div class="preview-section">
-        <div
-          class="preview-box"
-          :class="{
-            'preview-box-valid': isFormValid,
-            'preview-box-invalid': showInvalidPreview,
+        <InstancePreview
+          :instance="{
+            name: formData.name,
+            image: formData.image,
+            cpu: formData.flavorDetail.cpu,
+            memory: formData.flavorDetail.memory,
+            disk: formData.flavorDetail.disk,
+            network: formData.network,
           }"
-        >
-          <h3>선택된 사양 미리보기</h3>
-          <div class="preview-content">
-            <div class="preview-item">
-              <span class="label">이름</span>
-              <span class="value">{{ formData.name || '-' }}</span>
-            </div>
-            <div class="preview-item">
-              <span class="label">이미지</span>
-              <span class="value">{{ formData.image || '-' }}</span>
-            </div>
-            <div class="preview-item">
-              <span class="label">CPU</span>
-              <span class="value">{{ formData.flavorDetail.cpu || '-' }}</span>
-            </div>
-            <div class="preview-item">
-              <span class="label">메모리</span>
-              <span class="value">{{
-                formData.flavorDetail.memory ? formData.flavorDetail.memory + 'GB' : '-'
-              }}</span>
-            </div>
-            <div class="preview-item">
-              <span class="label">디스크</span>
-              <span class="value">{{
-                formData.flavorDetail.disk ? formData.flavorDetail.disk + 'GB' : '-'
-              }}</span>
-            </div>
-            <div class="preview-item">
-              <span class="label">네트워크</span>
-              <span class="value">{{ formData.network || '-' }}</span>
-            </div>
-          </div>
-        </div>
+          :is-valid="isFormValid"
+          :show-invalid="showInvalidPreview"
+        />
       </div>
     </div>
 
@@ -137,6 +110,7 @@ import { useInstancesStore } from '@/stores/instances'
 import ImageSelect from '@/components/ImageSelect.vue'
 import FlavorSelect from '@/components/FlavorSelect.vue'
 import NetworkSelect from '@/components/NetworkSelect.vue'
+import InstancePreview from '@/components/InstancePreview.vue'
 import type { Flavor } from '@/mock/types/flavor'
 
 // 타입 정의
@@ -370,7 +344,6 @@ const handleCancel = () => {
   color: #bfbfbf;
 }
 
-/* 선택 컴포넌트 스타일 오버라이드 */
 :deep(.select-container) {
   position: relative;
 }
@@ -468,52 +441,6 @@ const handleCancel = () => {
 :deep(.network-detail) {
   font-size: 12px;
   color: #8c8c8c;
-}
-
-.preview-box {
-  background-color: #ffffff;
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
-  padding: 20px;
-  transition: all 0.3s ease;
-}
-
-.preview-box-valid {
-  background-color: rgba(2, 103, 255, 0.05); /* #0267ff with 5% opacity */
-  border-color: #1890ff; /* 생성 버튼과 동일한 색상의 테두리 */
-}
-
-.preview-box-invalid {
-  background-color: rgba(255, 77, 79, 0.05); /* #ff4d4f with 5% opacity */
-  border-color: #ff4d4f; /* 생성 버튼과 동일한 색상의 테두리 */
-}
-
-.preview-box h3 {
-  margin: 0 0 20px 0;
-  font-size: 16px;
-  color: rgba(0, 0, 0, 0.45); /* 더 연한 색상으로 변경 */
-}
-
-.preview-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.preview-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-}
-
-.preview-item .label {
-  color: #8c8c8c;
-}
-
-.preview-item .value {
-  color: #262626;
-  font-weight: 400;
 }
 
 .action-buttons {
@@ -643,34 +570,20 @@ const handleCancel = () => {
     font-size: 13px;
   }
 
-  .preview-box {
-    padding: 12px;
-  }
-
-  .preview-box h3 {
-    font-size: 15px;
-    margin-bottom: 16px;
-  }
-
-  .preview-content {
+  .action-buttons {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     gap: 12px;
   }
 
-  .preview-item {
-    font-size: 13px;
-  }
-
-  .action-buttons {
-    margin-top: 24px;
-    flex-direction: column;
-    gap: 8px;
-  }
-
   .btn {
-    width: 100%;
+    flex: 1;
     padding: 6px 12px;
     font-size: 12px;
     height: 36px;
+    min-width: 120px;
   }
 
   .error-text {
@@ -709,10 +622,6 @@ const handleCancel = () => {
 
   .form-group {
     margin-bottom: 20px;
-  }
-
-  .preview-box {
-    padding: 16px;
   }
 }
 

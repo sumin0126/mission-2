@@ -17,7 +17,7 @@
     {
       "id": "inst-004",
       "name": "db-server-1",
-      "status": "RUNNING",
+      "status": "SHUTDOWN",
       "flavor": "C8M16D160",
       "image": "ubuntu-2204-kube-v1.31.10",
       "network": "private-network",
@@ -25,13 +25,13 @@
       "memory": 16,
       "disk": 160,
       "privateIp": "172.30.110.85",
-      "powerOn": true,
+      "powerOn": false,
       "createdAt": "2024-02-01T08:45:00Z"
     },
     {
       "id": "inst-005",
       "name": "test-environment",
-      "status": "RUNNING",
+      "status": "SHUTDOWN",
       "flavor": "C2M4D40",
       "image": "ubuntu-2204-kube-v1.30.14",
       "network": "private-network",
@@ -39,7 +39,7 @@
       "memory": 4,
       "disk": 40,
       "privateIp": "172.30.110.86",
-      "powerOn": true,
+      "powerOn": false,
       "createdAt": "2024-02-05T16:30:00Z"
     },
     {
