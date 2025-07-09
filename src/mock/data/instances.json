@@ -17,7 +17,7 @@
     {
       "id": "inst-004",
       "name": "db-server-1",
-      "status": "SHUTDOWN",
+      "status": "RUNNING",
       "flavor": "C8M16D160",
       "image": "ubuntu-2204-kube-v1.31.10",
       "network": "private-network",
@@ -25,13 +25,13 @@
       "memory": 16,
       "disk": 160,
       "privateIp": "172.30.110.85",
-      "powerOn": false,
+      "powerOn": true,
       "createdAt": "2024-02-01T08:45:00Z"
     },
     {
       "id": "inst-005",
       "name": "test-environment",
-      "status": "SHUTDOWN",
+      "status": "RUNNING",
       "flavor": "C2M4D40",
       "image": "ubuntu-2204-kube-v1.30.14",
       "network": "private-network",
@@ -39,7 +39,7 @@
       "memory": 4,
       "disk": 40,
       "privateIp": "172.30.110.86",
-      "powerOn": false,
+      "powerOn": true,
       "createdAt": "2024-02-05T16:30:00Z"
     },
     {
@@ -60,13 +60,13 @@
       "id": "inst-1752026407125",
       "name": "test",
       "image": "ubuntu-2204-kube-v1.30.9",
-      "flavor": "C1M2D20",
+      "flavor": "C4M8D80",
       "network": "private-network",
-      "cpu": 1,
-      "memory": 2,
-      "disk": 20,
-      "status": "RUNNING",
-      "powerOn": true,
+      "cpu": 4,
+      "memory": 8,
+      "disk": 80,
+      "status": "SHUTDOWN",
+      "powerOn": false,
       "createdAt": "2025-07-09T02:00:07.124Z",
       "privateIp": "172.30.110.169"
     },

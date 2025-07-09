@@ -43,6 +43,9 @@ export interface UpdateInstanceRequest {
   flavor?: string
   image?: string
   network?: string
+  cpu?: number
+  memory?: number
+  disk?: number
 }
 
 // 전원 상태 요청 타입

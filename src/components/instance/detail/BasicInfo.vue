@@ -9,11 +9,11 @@
     <div class="section-content">
       <div class="info-row">
         <span class="label">인스턴스 이름</span>
-        <span class="value">{{ instance?.name || '-' }}</span>
+        <span class="value">{{ currentInstance?.name || '-' }}</span>
       </div>
       <div class="info-row">
         <span class="label">이미지</span>
-        <span class="value">{{ instance?.image || '-' }}</span>
+        <span class="value">{{ currentInstance?.image || '-' }}</span>
       </div>
       <div class="info-row">
         <span class="label">전원 상태</span>
@@ -21,11 +21,11 @@
           <span
             class="status-tag"
             :class="{
-              'status-running': instance?.status === 'RUNNING',
-              'status-shutdown': instance?.status === 'SHUTDOWN',
+              'status-running': currentInstance?.status === 'RUNNING',
+              'status-shutdown': currentInstance?.status === 'SHUTDOWN',
             }"
           >
-            {{ instance?.status || '-' }}
+            {{ currentInstance?.status || '-' }}
           </span>
         </span>
       </div>
@@ -33,9 +33,9 @@
 
     <!-- 수정 모달 -->
     <EditBasicInfoModal
-      v-if="instance"
+      v-if="currentInstance"
       :is-open="isModalOpen"
-      :instance="instance"
+      :instance="currentInstance"
       @close="closeModal"
       @save="handleSave"
     />
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Instance } from '@/mock/types/instance'
 import EditBasicInfoModal from './EditBasicInfoModal.vue'
 import { useInstancesStore } from '@/stores/instances'
@@ -54,6 +54,12 @@ const props = defineProps<{
 
 const instancesStore = useInstancesStore()
 const isModalOpen = ref(false)
+
+// 스토어에서 최신 인스턴스 데이터 가져오기
+const currentInstance = computed(() => {
+  if (!props.instance) return null
+  return instancesStore.instances.find((inst) => inst.id === props.instance?.id) || props.instance
+})
 
 // 모달 오픈
 const openModal = () => {
@@ -67,20 +73,20 @@ const closeModal = () => {
 
 // 변경내용 저장
 const handleSave = async (data: { name: string; power: string }) => {
-  if (!props.instance) return
+  if (!currentInstance.value) return
 
   try {
     // 이름 업데이트
-    if (data.name !== props.instance.name) {
-      await instancesStore.updateInstance(props.instance.id, {
+    if (data.name !== currentInstance.value.name) {
+      await instancesStore.updateInstance(currentInstance.value.id, {
         name: data.name,
       })
     }
 
     // 전원 상태 업데이트
     const newPowerOn = data.power === 'on'
-    if (newPowerOn !== props.instance.powerOn) {
-      await instancesStore.updatePowerStatus(props.instance.id, {
+    if (newPowerOn !== currentInstance.value.powerOn) {
+      await instancesStore.updatePowerStatus(currentInstance.value.id, {
         powerOn: newPowerOn,
         status: newPowerOn ? 'RUNNING' : 'SHUTDOWN',
       })

@@ -59,7 +59,12 @@ export const useInstancesStore = defineStore('instances', () => {
       const response = await instanceAPI.getInstance(instanceId)
       const index = instances.value.findIndex((inst) => inst.id === instanceId)
       if (index !== -1) {
-        instances.value[index] = response.data
+        // 배열을 새로 만들어서 반응성 보장
+        instances.value = [
+          ...instances.value.slice(0, index),
+          response.data,
+          ...instances.value.slice(index + 1),
+        ]
       }
       return response.data
     } catch (err) {
@@ -114,7 +119,12 @@ export const useInstancesStore = defineStore('instances', () => {
       const response = await instanceAPI.updateInstance(instanceId, data)
       const index = instances.value.findIndex((inst) => inst.id === instanceId)
       if (index !== -1) {
-        instances.value[index] = response.data
+        // 배열을 새로 만들어서 반응성 보장
+        instances.value = [
+          ...instances.value.slice(0, index),
+          response.data,
+          ...instances.value.slice(index + 1),
+        ]
       }
       return response.data
     } catch (err) {
@@ -154,7 +164,12 @@ export const useInstancesStore = defineStore('instances', () => {
 
       const index = instances.value.findIndex((inst) => inst.id === instanceId)
       if (index !== -1) {
-        instances.value[index] = response.data
+        // 배열을 새로 만들어서 반응성 보장
+        instances.value = [
+          ...instances.value.slice(0, index),
+          response.data,
+          ...instances.value.slice(index + 1),
+        ]
       }
       return response.data
     } catch (err) {
@@ -175,7 +190,12 @@ export const useInstancesStore = defineStore('instances', () => {
       const response = await instanceAPI.toggleInstancePower(instanceId, data)
       const index = instances.value.findIndex((inst) => inst.id === instanceId)
       if (index !== -1) {
-        instances.value[index] = response.data
+        // 배열을 새로 만들어서 반응성 보장
+        instances.value = [
+          ...instances.value.slice(0, index),
+          response.data,
+          ...instances.value.slice(index + 1),
+        ]
       }
       return response.data
     } catch (err) {

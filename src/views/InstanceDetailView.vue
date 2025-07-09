@@ -49,14 +49,15 @@ onMounted(async () => {
 // 스토어의 인스턴스 데이터가 변경될 때마다 현재 인스턴스 데이터 업데이트
 watch(
   () => instancesStore.instances,
-  (newInstances) => {
+  async (newInstances) => {
     const id = route.params.id as string
     const updatedInstance = newInstances.find((inst) => inst.id === id)
     if (updatedInstance) {
-      instance.value = updatedInstance
+      // 최신 데이터로 업데이트
+      instance.value = { ...updatedInstance }
     }
   },
-  { deep: true } // 인스턴스 배열 내부의 객체 변경도 감지
+  { deep: true, immediate: true }
 )
 
 // 인스턴스 삭제

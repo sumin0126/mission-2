@@ -2,21 +2,12 @@
   <div v-if="isOpen" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>기본 정보</h3>
+        <h3>리소스 정보</h3>
         <button class="close-button" @click="handleClose">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label>인스턴스 이름</label>
-          <input
-            type="text"
-            v-model="formData.name"
-            class="form-input"
-            :placeholder="instance.name"
-          />
-        </div>
-        <div class="form-group">
-          <label>전원 관리</label>
+          <label>리사이징</label>
           <div class="select-container" ref="selectContainer">
             <div
               class="select-box"
@@ -24,18 +15,18 @@
               @click="toggleDropdown"
               tabindex="0"
             >
-              <span>{{ formData.power === 'on' ? 'on' : 'off' }}</span>
+              <span>{{ getFlavorDescription(formData.flavor) }}</span>
               <span class="arrow-down"></span>
             </div>
             <div class="dropdown-list" :class="{ 'dropdown-open': isDropdownOpen }">
               <div
-                v-for="option in ['on', 'off']"
+                v-for="option in flavorOptions"
                 :key="option"
                 class="dropdown-item"
-                :class="{ selected: option === formData.power }"
-                @click="selectPowerOption(option)"
+                :class="{ selected: option === formData.flavor }"
+                @click="selectFlavorOption(option)"
               >
-                {{ option }}
+                {{ getFlavorDescription(option) }}
               </div>
             </div>
           </div>
@@ -52,21 +43,20 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import type { Instance } from '@/mock/types/instance'
+import { mockFlavors } from '@/mock/data/flavors'
 
 const props = defineProps<{
   isOpen: boolean
   instance: Instance
 }>()
 
-// BasicInfo한테 보낼 이벤트 정의
 const emit = defineEmits<{
   (e: 'close'): void
-  (e: 'save', data: { name: string; power: string }): void
+  (e: 'save', data: { flavor: string }): void
 }>()
 
 const formData = ref({
-  name: props.instance.name,
-  power: props.instance.status === 'RUNNING' ? 'on' : 'off',
+  flavor: props.instance.flavor,
 })
 
 // 모달이 열릴 때마다 최신 instance 데이터로 formData 초기화
@@ -75,8 +65,7 @@ watch(
   (isOpen) => {
     if (isOpen) {
       formData.value = {
-        name: props.instance.name,
-        power: props.instance.status === 'RUNNING' ? 'on' : 'off',
+        flavor: props.instance.flavor,
       }
     }
   }
@@ -87,12 +76,20 @@ watch(
   () => props.instance,
   (newInstance) => {
     formData.value = {
-      name: newInstance.name,
-      power: newInstance.status === 'RUNNING' ? 'on' : 'off',
+      flavor: newInstance.flavor,
     }
   },
   { deep: true }
 )
+
+// flavor 옵션들
+const flavorOptions = mockFlavors.map((flavor) => flavor.name)
+
+// 선택된 flavor의 설명 가져오기
+const getFlavorDescription = (flavorName: string) => {
+  const flavor = mockFlavors.find((f) => f.name === flavorName)
+  return flavor?.description || flavorName
+}
 
 const isDropdownOpen = ref(false)
 const selectContainer = ref<HTMLElement | null>(null)
@@ -109,8 +106,8 @@ const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value
 }
 
-const selectPowerOption = (option: string) => {
-  formData.value.power = option
+const selectFlavorOption = (option: string) => {
+  formData.value.flavor = option
   isDropdownOpen.value = false
 }
 
@@ -193,22 +190,6 @@ onUnmounted(() => {
   font-size: 14px;
 }
 
-.form-input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #595959;
-  height: 40px;
-}
-
-.form-input:focus {
-  border-color: #1890ff;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
-}
-
 .select-container {
   position: relative;
   width: 100%;
@@ -286,6 +267,8 @@ onUnmounted(() => {
   color: #262626;
 }
 
+/* current-flavor 스타일 제거 */
+
 .modal-footer {
   padding: 10px 24px;
   padding-bottom: 30px;
@@ -344,10 +327,6 @@ onUnmounted(() => {
 
   .dropdown-item {
     padding: 8px 12px;
-    font-size: 13px;
-  }
-  .form-input {
-    height: 36px;
     font-size: 13px;
   }
 }
