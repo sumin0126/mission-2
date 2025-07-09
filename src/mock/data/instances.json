@@ -26,7 +26,8 @@
       "disk": 160,
       "privateIp": "172.30.110.85",
       "powerOn": false,
-      "createdAt": "2024-02-01T08:45:00Z"
+      "createdAt": "2024-02-01T08:45:00Z",
+      "publicIp": null
     },
     {
       "id": "inst-005",
@@ -106,7 +107,7 @@
       "name": "진짜 테스트2",
       "image": "ubuntu-2204-kube-v1.28.5",
       "flavor": "C2M4D40",
-      "network": "private-network",
+      "network": "public-network",
       "cpu": 2,
       "memory": 4,
       "disk": 40,
@@ -114,7 +115,7 @@
       "powerOn": true,
       "createdAt": "2025-07-09T09:07:59.660Z",
       "privateIp": "172.30.110.211",
-      "publicIp": null
+      "publicIp": "203.0.113.96"
     }
   ]
 }

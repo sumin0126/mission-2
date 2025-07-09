@@ -8,22 +8,24 @@ import type { AxiosResponse } from 'axios'
 import { instancesAxios } from './index'
 
 // 인스턴스 목록 조회
-export const getInstances = (): Promise<AxiosResponse<Instance[]>> => {
+export const fetchInstances = (): Promise<AxiosResponse<Instance[]>> => {
   return instancesAxios.get('/instances')
 }
 
 // 인스턴스 단일 조회
-export const getInstance = (id: string): Promise<AxiosResponse<Instance>> => {
+export const fetchInstance = (id: string): Promise<AxiosResponse<Instance>> => {
   return instancesAxios.get(`/instances/${id}`)
 }
 
 // 인스턴스 생성
-export const createInstance = (data: CreateInstanceRequest): Promise<AxiosResponse<Instance>> => {
+export const fetchCreateInstance = (
+  data: CreateInstanceRequest
+): Promise<AxiosResponse<Instance>> => {
   return instancesAxios.post('/instances', data)
 }
 
 // 인스턴스 수정
-export const updateInstance = (
+export const fetchUpdateInstance = (
   id: string,
   data: UpdateInstanceRequest
 ): Promise<AxiosResponse<Instance>> => {
@@ -31,12 +33,12 @@ export const updateInstance = (
 }
 
 // 인스턴스 삭제
-export const deleteInstance = (id: string): Promise<AxiosResponse<void>> => {
+export const fetchDeleteInstance = (id: string): Promise<AxiosResponse<void>> => {
   return instancesAxios.delete(`/instances/${id}`)
 }
 
 // 인스턴스 전원 제어
-export const toggleInstancePower = (
+export const fetchToggleInstancePower = (
   id: string,
   data: PowerUpdateRequest
 ): Promise<AxiosResponse<Instance>> => {

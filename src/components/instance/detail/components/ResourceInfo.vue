@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { Instance } from '@/mock/types/instance'
-import EditResourceInfoModal from './EditResourceInfoModal.vue'
+import { EditResourceInfoModal } from '../modals'
 import { useInstancesStore } from '@/stores/instances'
 import { mockFlavors } from '@/mock/data/flavors'
 

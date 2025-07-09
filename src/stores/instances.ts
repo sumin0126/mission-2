@@ -41,7 +41,7 @@ export const useInstancesStore = defineStore('instances', () => {
     isLoading.value = true
     error.value = null
     try {
-      const response = await instanceAPI.getInstances()
+      const response = await instanceAPI.fetchInstances()
       instances.value = Array.isArray(response.data) ? response.data : []
     } catch (err) {
       console.error('인스턴스 목록 초기화 실패:', err)
@@ -56,10 +56,9 @@ export const useInstancesStore = defineStore('instances', () => {
   const getInstance = async (instanceId: string) => {
     isLoadingDetails.value = true
     try {
-      const response = await instanceAPI.getInstance(instanceId)
+      const response = await instanceAPI.fetchInstance(instanceId)
       const index = instances.value.findIndex((inst) => inst.id === instanceId)
       if (index !== -1) {
-        // 배열을 새로 만들어서 반응성 보장
         instances.value = [
           ...instances.value.slice(0, index),
           response.data,
@@ -101,7 +100,7 @@ export const useInstancesStore = defineStore('instances', () => {
         publicIp,
       }
 
-      const response = await instanceAPI.createInstance(instanceData)
+      const response = await instanceAPI.fetchCreateInstance(instanceData)
       instances.value.push(response.data)
       return response.data
     } catch (err) {
@@ -140,10 +139,9 @@ export const useInstancesStore = defineStore('instances', () => {
         }
       }
 
-      const response = await instanceAPI.updateInstance(instanceId, data)
+      const response = await instanceAPI.fetchUpdateInstance(instanceId, data)
       const index = instances.value.findIndex((inst) => inst.id === instanceId)
       if (index !== -1) {
-        // 배열을 새로 만들어서 반응성 보장
         instances.value = [
           ...instances.value.slice(0, index),
           response.data,
@@ -163,7 +161,7 @@ export const useInstancesStore = defineStore('instances', () => {
   const deleteInstance = async (instanceId: string) => {
     isDeleting.value = true
     try {
-      const response = await instanceAPI.deleteInstance(instanceId)
+      const response = await instanceAPI.fetchDeleteInstance(instanceId)
       instances.value = instances.value.filter((inst) => inst.id !== instanceId)
     } catch (err) {
       console.error('인스턴스 삭제 실패:', err)
@@ -181,14 +179,13 @@ export const useInstancesStore = defineStore('instances', () => {
     isTogglingPower.value = true
     try {
       const newPowerState = !instance.powerOn
-      const response = await instanceAPI.toggleInstancePower(instanceId, {
+      const response = await instanceAPI.fetchToggleInstancePower(instanceId, {
         powerOn: newPowerState,
         status: newPowerState ? 'RUNNING' : 'SHUTDOWN',
       })
 
       const index = instances.value.findIndex((inst) => inst.id === instanceId)
       if (index !== -1) {
-        // 배열을 새로 만들어서 반응성 보장
         instances.value = [
           ...instances.value.slice(0, index),
           response.data,
@@ -211,7 +208,7 @@ export const useInstancesStore = defineStore('instances', () => {
   ) => {
     isTogglingPower.value = true
     try {
-      const response = await instanceAPI.toggleInstancePower(instanceId, data)
+      const response = await instanceAPI.fetchToggleInstancePower(instanceId, data)
       const index = instances.value.findIndex((inst) => inst.id === instanceId)
       if (index !== -1) {
         // 배열을 새로 만들어서 반응성 보장

@@ -1,28 +1,38 @@
 <template>
   <div class="section-box">
     <div class="section-header">
-      <h3>네트워크 정보</h3>
+      <h3>기본 정보</h3>
       <button class="btn-edit" @click="openModal">
         <span class="edit-icon">✎</span>
       </button>
     </div>
     <div class="section-content">
       <div class="info-row">
-        <span class="label">네트워크</span>
-        <span class="value">{{ currentInstance?.network || '-' }}</span>
+        <span class="label">인스턴스 이름</span>
+        <span class="value">{{ currentInstance?.name || '-' }}</span>
       </div>
       <div class="info-row">
-        <span class="label">내부 IP</span>
-        <span class="value">{{ currentInstance?.privateIp || '-' }}</span>
+        <span class="label">이미지</span>
+        <span class="value">{{ currentInstance?.image || '-' }}</span>
       </div>
       <div class="info-row">
-        <span class="label">외부 IP</span>
-        <span class="value">{{ currentInstance?.publicIp || '-' }}</span>
+        <span class="label">전원 상태</span>
+        <span class="value">
+          <span
+            class="status-tag"
+            :class="{
+              'status-running': currentInstance?.status === 'RUNNING',
+              'status-shutdown': currentInstance?.status === 'SHUTDOWN',
+            }"
+          >
+            {{ currentInstance?.status || '-' }}
+          </span>
+        </span>
       </div>
     </div>
 
     <!-- 수정 모달 -->
-    <EditNetworkInfoModal
+    <EditBasicInfoModal
       v-if="currentInstance"
       :is-open="isModalOpen"
       :instance="currentInstance"
@@ -35,10 +45,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { Instance } from '@/mock/types/instance'
-import type { Network } from '@/mock/types/network'
-import EditNetworkInfoModal from './EditNetworkInfoModal.vue'
+import { EditBasicInfoModal } from '../modals'
 import { useInstancesStore } from '@/stores/instances'
-import { mockNetworks } from '@/mock/data/networks'
 
 const props = defineProps<{
   instance: Instance | null
@@ -64,17 +72,26 @@ const closeModal = () => {
 }
 
 // 변경내용 저장
-const handleSave = async (data: { network: string }) => {
+const handleSave = async (data: { name: string; power: string }) => {
   if (!currentInstance.value) return
 
   try {
-    // 네트워크 정보 업데이트 - 스토어에서 자동으로 네트워크 타입에 따라 IP 관리
-    await instancesStore.updateInstance(currentInstance.value.id, {
-      network: data.network,
-    })
+    // 이름 업데이트
+    if (data.name !== currentInstance.value.name) {
+      await instancesStore.updateInstance(currentInstance.value.id, {
+        name: data.name,
+      })
+    }
 
-    // 변경 사항 적용 후 인스턴스 정보 새로고침
-    await instancesStore.getInstance(currentInstance.value.id)
+    // 전원 상태 업데이트
+    const newPowerOn = data.power === 'on'
+    if (newPowerOn !== currentInstance.value.powerOn) {
+      await instancesStore.updatePowerStatus(currentInstance.value.id, {
+        powerOn: newPowerOn,
+        status: newPowerOn ? 'RUNNING' : 'SHUTDOWN',
+      })
+    }
+
     closeModal()
   } catch (error) {
     console.error('인스턴스 업데이트 중 오류:', error)
@@ -147,5 +164,27 @@ const handleSave = async (data: { network: string }) => {
   flex: 1;
   color: #787878;
   font-size: 14px;
+}
+
+/* 상태 태그 스타일 */
+.status-tag {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-running {
+  background-color: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+
+.status-shutdown {
+  background-color: #fff2f0;
+  color: #ff4d4f;
+  border: 1px solid #ffccc7;
 }
 </style>

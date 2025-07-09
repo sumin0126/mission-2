@@ -15,18 +15,18 @@
               @click="toggleDropdown"
               tabindex="0"
             >
-              <span>{{ getNetworkDescription(formData.network) }}</span>
+              <span>{{ getNetworkName(formData.network) }}</span>
               <span class="arrow-down"></span>
             </div>
             <div class="dropdown-list" :class="{ 'dropdown-open': isDropdownOpen }">
               <div
-                v-for="option in networkOptions"
-                :key="option"
+                v-for="name in networkNames"
+                :key="name"
                 class="dropdown-item"
-                :class="{ selected: option === formData.network }"
-                @click="selectNetworkOption(option)"
+                :class="{ selected: name === formData.network }"
+                @click="selectNetworkOption(name)"
               >
-                {{ getNetworkDescription(option) }}
+                {{ getNetworkName(name) }}
               </div>
             </div>
           </div>
@@ -83,12 +83,12 @@ watch(
 )
 
 // 네트워크 옵션들
-const networkOptions = mockNetworks.map((network) => network.name)
+const networkNames = mockNetworks.map((network) => network.name)
 
 // 선택된 네트워크의 설명 가져오기
-const getNetworkDescription = (networkName: string) => {
+const getNetworkName = (networkName: string) => {
   const network = mockNetworks.find((n) => n.name === networkName)
-  return network ? `${network.name} (${network.type})` : networkName
+  return network ? `${network.name}` : networkName
 }
 
 const isDropdownOpen = ref(false)

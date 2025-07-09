@@ -16,11 +16,11 @@
 
     <div class="detail-section">
       <!-- 기본 정보 -->
-      <InstanceBasicInfo :instance="instance" />
+      <BasicInfo :instance="instance" />
       <!-- 리소스 정보 -->
-      <InstanceResourceInfo :instance="instance" />
+      <ResourceInfo :instance="instance" />
       <!-- 네트워크 정보 -->
-      <InstanceNetworkInfo :instance="instance" />
+      <NetworkInfo :instance="instance" />
     </div>
   </div>
 </template>
@@ -28,10 +28,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import InstanceBasicInfo from '@/components/instance/detail/BasicInfo.vue'
-import InstanceResourceInfo from '@/components/instance/detail/ResourceInfo.vue'
-import InstanceNetworkInfo from '@/components/instance/detail/NetworkInfo.vue'
 import { useInstancesStore } from '@/stores/instances'
+import { BasicInfo, NetworkInfo, ResourceInfo } from '@/components/instance/detail/components'
 import type { Instance } from '@/mock/types/instance'
 
 const router = useRouter()
