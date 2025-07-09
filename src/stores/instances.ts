@@ -116,6 +116,30 @@ export const useInstancesStore = defineStore('instances', () => {
   const updateInstance = async (instanceId: string, data: UpdateInstanceRequest) => {
     isUpdating.value = true
     try {
+      // 네트워크 변경이 있는 경우 IP 처리
+      if (data.network) {
+        const instance = instances.value.find((inst) => inst.id === instanceId)
+        if (instance) {
+          const oldNetworkType = getNetworkType(instance.network)
+          const newNetworkType = getNetworkType(data.network)
+
+          // 네트워크 타입이 변경된 경우
+          if (oldNetworkType !== newNetworkType) {
+            if (newNetworkType === 'public') {
+              // private -> public: 외부 IP 할당
+              let publicIp = generatePublicIp()
+              while (instances.value.some((inst) => inst.publicIp === publicIp)) {
+                publicIp = generatePublicIp()
+              }
+              data.publicIp = publicIp
+            } else {
+              // public -> private: 외부 IP 제거
+              data.publicIp = null
+            }
+          }
+        }
+      }
+
       const response = await instanceAPI.updateInstance(instanceId, data)
       const index = instances.value.findIndex((inst) => inst.id === instanceId)
       if (index !== -1) {
