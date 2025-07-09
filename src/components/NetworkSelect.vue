@@ -1,31 +1,12 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { mockNetworks } from '@/mock/data/networks'
-import type { Network } from '@/mock/types/network'
-
-const props = defineProps<{
-  modelValue: string
-}>()
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
-
-const isOpen = ref(false)
-
-const toggleDropdown = () => {
-  isOpen.value = !isOpen.value
-}
-
-const selectNetwork = (network: Network) => {
-  emit('update:modelValue', network.name)
-  isOpen.value = false
-}
-</script>
-
 <template>
-  <div class="select-container">
-    <div class="select-box" @click="toggleDropdown" :class="{ active: isOpen }">
+  <div class="select-container" ref="selectContainer">
+    <div
+      class="select-box"
+      :class="{ active: isOpen }"
+      @click="toggleDropdown"
+      @keydown.enter.prevent="emit('keydown:enter', $event)"
+      tabindex="0"
+    >
       <span :class="{ placeholder: !modelValue }">{{
         modelValue || '네트워크를 선택해 주세요'
       }}</span>
@@ -37,7 +18,7 @@ const selectNetwork = (network: Network) => {
         :key="network.name"
         class="dropdown-item"
         :class="{ selected: network.name === modelValue }"
-        @click="selectNetwork(network)"
+        @click="selectItem(network.name)"
       >
         <div class="network-name">{{ network.name }}</div>
         <div class="network-detail">{{ network.description }}</div>
@@ -45,6 +26,64 @@ const selectNetwork = (network: Network) => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { mockNetworks } from '@/mock/data/networks'
+import type { Network } from '@/mock/types/network'
+
+// 부모 컴포넌트로부터 받는 props (선택된 네트워크 이름)
+defineProps<{
+  modelValue: string
+}>()
+
+// 부모 컴포넌트로 이벤트를 전달하기 위한 emit 함수들
+const emit = defineEmits<{
+  'update:modelValue': [value: string] // 선택된 값 업데이트
+  'keydown:enter': [event: KeyboardEvent] // 엔터키 이벤트
+}>()
+
+// 드롭다운 메뉴의 열림/닫힘 상태
+const isOpen = ref(false)
+// 컴포넌트의 최상위 요소 참조 (외부 클릭 감지용)
+const selectContainer = ref<HTMLElement | null>(null)
+
+/**
+ * 드롭다운 메뉴의 열림/닫힘 상태를 토글합니다.
+ */
+const toggleDropdown = () => {
+  isOpen.value = !isOpen.value
+}
+
+/**
+ * 네트워크 항목 선택 시 호출되는 함수
+ * @param value 선택된 네트워크 이름
+ */
+const selectItem = (value: string) => {
+  emit('update:modelValue', value)
+  isOpen.value = false
+}
+
+/**
+ * 컴포넌트 외부 클릭을 감지하여 드롭다운을 닫는 함수
+ * @param event 마우스 클릭 이벤트
+ */
+const handleClickOutside = (event: MouseEvent) => {
+  if (selectContainer.value && !selectContainer.value.contains(event.target as Node)) {
+    isOpen.value = false
+  }
+}
+
+// 컴포넌트가 마운트될 때 전역 클릭 이벤트 리스너 등록
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+// 컴포넌트가 언마운트될 때 이벤트 리스너 제거 (메모리 누수 방지)
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+</script>
 
 <style scoped>
 .select-container {

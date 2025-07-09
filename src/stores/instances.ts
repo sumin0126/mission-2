@@ -1,7 +1,29 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Instance, CreateInstanceRequest, UpdateInstanceRequest } from '@/mock/types/instance'
+import type { Network } from '@/mock/types/network'
 import * as instanceAPI from '@/api/instances'
+import { mockNetworks } from '@/mock/data/networks'
+
+// 내부 IP 할당 함수
+const generatePrivateIp = () => {
+  // 172.30.110.x 대역에서 랜덤한 IP 생성
+  const lastOctet = Math.floor(Math.random() * (254 - 80 + 1)) + 80 // 80~254 범위
+  return `172.30.110.${lastOctet}`
+}
+
+// 외부 IP 할당 함수
+const generatePublicIp = () => {
+  // 203.0.113.x 대역에서 랜덤한 IP 생성 (TEST-NET-3 주소 범위 사용)
+  const lastOctet = Math.floor(Math.random() * 254) + 1 // 1~254 범위
+  return `203.0.113.${lastOctet}`
+}
+
+// 네트워크 타입 확인 함수
+const getNetworkType = (networkName: string): 'private' | 'public' => {
+  const network = mockNetworks.find((n) => n.name === networkName)
+  return network?.type || 'private'
+}
 
 export const useInstancesStore = defineStore('instances', () => {
   const instances = ref<Instance[]>([])
@@ -52,7 +74,29 @@ export const useInstancesStore = defineStore('instances', () => {
   const createInstance = async (data: CreateInstanceRequest) => {
     isCreating.value = true
     try {
-      const response = await instanceAPI.createInstance(data)
+      // 내부 IP 할당
+      let privateIp = generatePrivateIp()
+      while (instances.value.some((inst) => inst.privateIp === privateIp)) {
+        // 중복 시, 새로운 IP 할당
+        privateIp = generatePrivateIp()
+      }
+
+      // 외부 IP 할당
+      let publicIp: string | undefined
+      if (getNetworkType(data.network) === 'public') {
+        publicIp = generatePublicIp()
+        while (instances.value.some((inst) => inst.publicIp === publicIp)) {
+          publicIp = generatePublicIp()
+        }
+      }
+
+      const instanceData = {
+        ...data,
+        privateIp,
+        publicIp,
+      }
+
+      const response = await instanceAPI.createInstance(instanceData)
       instances.value.push(response.data)
       return response.data
     } catch (err) {

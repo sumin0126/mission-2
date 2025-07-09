@@ -24,6 +24,12 @@ export interface CreateInstanceRequest {
   image: string
   flavor: string
   network: string
+  cpu: number
+  memory: number
+  disk: number
+  status: 'RUNNING' | 'SHUTDOWN'
+  powerOn: boolean
+  createdAt: string
 }
 
 // 생성 응답 타입
