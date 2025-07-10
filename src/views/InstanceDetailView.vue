@@ -22,6 +22,16 @@
       <!-- 네트워크 정보 -->
       <NetworkInfo :instance="instance" />
     </div>
+
+    <!-- 인스턴스 삭제 확인 모달 -->
+    <ConfirmModal
+      v-model="showDeleteModal"
+      title="알림"
+      :message="`'${instance?.name}' 인스턴스를 삭제하시겠습니까?`"
+      confirm-text="확인"
+      cancel-text="취소"
+      @confirm="handleDeleteConfirm"
+    />
   </div>
 </template>
 
@@ -30,12 +40,14 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useInstancesStore } from '@/stores/instances'
 import { BasicInfo, NetworkInfo, ResourceInfo } from '@/components/instance/detail/components'
+import ConfirmModal from '@/components/common/ConfirmModal.vue'
 import type { Instance } from '@/mock/types/instance'
 
 const router = useRouter()
 const route = useRoute()
 const instancesStore = useInstancesStore()
 const instance = ref<Instance | null>(null)
+const showDeleteModal = ref(false)
 
 // 컴포넌트 마운트 시 인스턴스 상세 정보 로드
 onMounted(async () => {
@@ -60,16 +72,21 @@ watch(
 
 // 인스턴스 삭제
 const handleDelete = async () => {
-  const confirmed = confirm('해당 인스턴스를 삭제하시겠습니까?')
+  showDeleteModal.value = true
+}
 
-  if (confirmed) {
-    try {
-      await instancesStore.deleteInstance(instance.value!.id)
-      router.push({ name: 'instanceList' })
-    } catch (error) {
-      alert('인스턴스를 삭제하는 중 오류가 발생했습니다.')
-      console.error('인스턴스 삭제 중 오류:', error)
+// 삭제 확인
+const handleDeleteConfirm = async (dontShowToday: boolean) => {
+  try {
+    await instancesStore.deleteInstance(instance.value!.id)
+    if (dontShowToday) {
+      // TODO: 로컬 스토리지에 '오늘 하루 보지 않기' 설정 저장
+      localStorage.setItem('dontShowDeleteConfirm', new Date().toDateString())
     }
+    router.push({ name: 'instanceList' })
+  } catch (error) {
+    alert('인스턴스를 삭제하는 중 오류가 발생했습니다.')
+    console.error('인스턴스 삭제 중 오류:', error)
   }
 }
 </script>
