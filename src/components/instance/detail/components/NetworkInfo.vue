@@ -91,7 +91,7 @@ const handleSave = async (data: { network: string }) => {
 }
 
 .section-header {
-  padding: 16px 24px;
+  padding: 10px 24px;
   border-bottom: 1px solid #e8e8e8;
   display: flex;
   justify-content: space-between;

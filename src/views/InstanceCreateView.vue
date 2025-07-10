@@ -100,6 +100,15 @@
     <div v-if="instanceStore.error" class="error-message">
       {{ instanceStore.error }}
     </div>
+
+    <!-- 인스턴스 생성 성공 모달 -->
+    <AlertModal
+      v-model="showSuccessModal"
+      title="알림"
+      message="인스턴스 생성이 완료되었습니다."
+      confirm-text="확인"
+      @confirm="handleModalConfirm"
+    />
   </div>
 </template>
 
@@ -111,6 +120,7 @@ import ImageSelect from '@/components/instance/create/ImageSelect.vue'
 import NetworkSelect from '@/components/instance/create/NetworkSelect.vue'
 import { useInstancesStore } from '@/stores/instances'
 import InstancePreview from '@/components/InstancePreview.vue'
+import AlertModal from '@/components/common/AlertModal.vue'
 import type { Flavor } from '@/mock/types/flavor'
 import type { CreateInstanceRequest } from '@/mock/types/instance'
 
@@ -203,6 +213,9 @@ const validateForm = () => {
 // 미리보기 박스 상태 (true - 빨간색 / false - 기본)
 const showInvalidPreview = ref(false)
 
+// 모달 상태
+const showSuccessModal = ref(false)
+
 // 생성 버튼 클릭 핸들러
 const handleCreate = async () => {
   if (!validateForm()) {
@@ -223,10 +236,15 @@ const handleCreate = async () => {
       powerOn: true,
       createdAt: new Date().toISOString(),
     })
-    router.push({ name: 'instanceList' })
+    showSuccessModal.value = true
   } catch (error) {
     console.error('인스턴스 생성 실패:', error)
   }
+}
+
+// 모달 확인 버튼 핸들러 - 목록 페이지로 이동
+const handleModalConfirm = () => {
+  router.push({ name: 'instanceList' })
 }
 
 // 필드 간 이동 핸들러
@@ -524,32 +542,36 @@ const handleCancel = () => {
     padding: 16px;
   }
 
-  .action-bar {
-    margin-bottom: 16px;
+  .action-bar,
+  .action-buttons {
+    max-width: 100%;
+    padding: 0;
   }
 
   .page-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
+    display: block;
     min-width: 0;
   }
 
   .page-title h2 {
     font-size: 18px;
-    margin: 0;
+    margin: 0 0 4px 0;
     white-space: nowrap;
   }
 
   .page-title p {
     font-size: 12px;
     margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    min-width: 0;
+    white-space: normal;
+    color: #8c8c8c;
+  }
+
+  .create-form-container {
+    flex-direction: column;
+  }
+
+  .preview-section {
+    width: 100%;
   }
 
   .form-group {
@@ -596,25 +618,26 @@ const handleCancel = () => {
 @media (max-width: 1024px) {
   .instance-create {
     padding: 20px;
-  }
-
-  .create-form-container {
-    flex-direction: column;
-  }
-
-  .preview-section {
-    width: 100%;
-    max-width: 800px;
-  }
-
-  .form-section,
-  .preview-section {
+    max-width: 1024px;
     margin: 0 auto;
-    width: 100%;
   }
 
   .action-bar {
     margin-bottom: 20px;
+    width: 100%;
+    padding: 0 16px;
+  }
+
+  .create-form-container {
+    flex-direction: column;
+    width: 100%;
+    padding: 0 16px;
+  }
+
+  .form-section,
+  .preview-section {
+    width: 100%;
+    max-width: 100%;
   }
 
   .page-title h2 {
@@ -624,10 +647,20 @@ const handleCancel = () => {
   .form-group {
     margin-bottom: 20px;
   }
+
+  .action-buttons {
+    width: 100%;
+    margin-top: 32px;
+    padding: 0 16px;
+  }
 }
 
 /* 데스크탑 - 1024px 초과 ~ 1440px 이하 */
 @media (max-width: 1440px) {
+  .action-bar,
+  .action-buttons {
+    max-width: 1192px;
+  }
   .create-form-container {
     gap: 24px;
   }

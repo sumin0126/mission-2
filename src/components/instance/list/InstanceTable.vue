@@ -99,7 +99,7 @@ const isAllSelected = computed(() => {
   return props.instances.length > 0 && selectedIds.value.length === props.instances.length
 })
 
-// 전체 인스턴스 선택/해제 처리
+// 전체 인스턴스 선택/해제 처리 - 체크박스
 const handleSelectAllInstances = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.checked) {
@@ -112,7 +112,7 @@ const handleSelectAllInstances = (event: Event) => {
   emit('select', selectedIds.value)
 }
 
-// 체크박스 선택/해제 처리
+// 개별 인스턴스 선택/해제 처리 - 체크박스
 const handleSelectInstance = (id: string) => {
   const index = selectedIds.value.indexOf(id)
   if (index === -1) {
