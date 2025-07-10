@@ -26,6 +26,16 @@
       @select="handleInstanceSelection"
       @togglePower="handlePowerToggle"
     />
+
+    <!-- 삭제 확인 모달 -->
+    <ConfirmModal
+      v-model="showDeleteConfirmModal"
+      title="인스턴스 삭제"
+      :message="'선택한 ' + selectedInstanceIds.length + '개의 인스턴스를 삭제하시겠습니까?'"
+      confirm-text="삭제"
+      cancel-text="취소"
+      @confirm="handleDeleteConfirm"
+    />
   </div>
 </template>
 
@@ -36,11 +46,15 @@ import type { Instance } from '@/mock/types/instance'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import InstanceTable from '@/components/instance/list/InstanceTable.vue'
+import ConfirmModal from '@/components/common/ConfirmModal.vue'
 
 const instanceStore = useInstancesStore()
 const selectedInstanceIds = ref<string[]>([])
 const router = useRouter()
 const { t } = useI18n()
+
+// 삭제 확인 모달 상태
+const showDeleteConfirmModal = ref(false)
 
 // 컴포넌트 마운트 시 인스턴스 목록 로드
 onMounted(async () => {
@@ -65,25 +79,43 @@ const handlePowerToggle = async (instance: Instance) => {
   }
 }
 
-// 인스턴스 다중 삭제 함수
-const deleteSelectedInstances = async () => {
-  if (selectedInstanceIds.value.length === 0) return
-
-  const confirmed = confirm(
-    t('instance.messages.deleteConfirm', { count: selectedInstanceIds.value.length })
-  )
-  if (confirmed) {
-    try {
-      // 순차적으로 삭제 처리
-      for (const id of selectedInstanceIds.value) {
-        await instanceStore.deleteInstance(id)
-      }
-      selectedInstanceIds.value = []
-      // 삭제 후 목록 갱신
-      await instanceStore.getInstances()
-    } catch (error) {
-      console.error('인스턴스 삭제 실패:', error)
+// 인스턴스 삭제 처리
+const handleDelete = async (ids: string[]) => {
+  try {
+    // 순차적으로 삭제 처리
+    for (const id of ids) {
+      await instanceStore.deleteInstance(id)
     }
+    // 삭제 후 목록 갱신
+    await instanceStore.getInstances()
+  } catch (error) {
+    console.error('인스턴스 삭제 실패:', error)
+  }
+}
+
+// 인스턴스 다중 삭제 함수
+const deleteSelectedInstances = () => {
+  if (selectedInstanceIds.value.length === 0) return
+  showDeleteConfirmModal.value = true
+}
+
+// 삭제 확인 시
+const handleDeleteConfirm = async (dontShowToday: boolean) => {
+  try {
+    // 순차적으로 삭제 처리
+    for (const id of selectedInstanceIds.value) {
+      await instanceStore.deleteInstance(id)
+    }
+    selectedInstanceIds.value = []
+    // 삭제 후 목록 갱신
+    await instanceStore.getInstances()
+
+    // 오늘 하루 보지 않기 설정 저장
+    if (dontShowToday) {
+      localStorage.setItem('dontShowDeleteConfirm', new Date().toDateString())
+    }
+  } catch (error) {
+    console.error('인스턴스 삭제 실패:', error)
   }
 }
 

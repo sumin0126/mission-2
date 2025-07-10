@@ -107,6 +107,7 @@
       title="알림"
       message="인스턴스 생성이 완료되었습니다."
       confirm-text="확인"
+      :show-dont-show-option="true"
       @confirm="handleSuccessConfirm"
     />
   </div>
@@ -257,6 +258,7 @@ const handleCreate = async () => {
 // 성공 모달 확인 버튼 클릭 시
 const handleSuccessConfirm = (dontShowToday: boolean) => {
   if (dontShowToday) {
+    // 오늘 하루 보지 않기 설정 저장
     localStorage.setItem('dontShowCreateSuccess', new Date().toDateString())
   }
   router.push({ name: 'instanceList' })

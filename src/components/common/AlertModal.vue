@@ -4,12 +4,15 @@
       <div class="modal-container">
         <div class="modal-header">
           <h3>{{ title }}</h3>
+          <button class="close-button" @click="handleClose">
+            <span class="close-icon">×</span>
+          </button>
         </div>
         <div class="modal-content">
-          {{ message }}
+          <p class="message">{{ message }}</p>
         </div>
         <div class="modal-footer">
-          <div class="checkbox-wrapper">
+          <div class="checkbox-wrapper" v-if="showDontShowOption">
             <label class="checkbox-label">
               <input type="checkbox" v-model="dontShowToday" class="checkbox-input" />
               <span class="checkbox-text">오늘 하루동안 보지 않기</span>
@@ -17,7 +20,7 @@
           </div>
           <div class="button-wrapper">
             <button class="btn btn-confirm" @click="handleConfirm">
-              {{ confirmText }}
+              {{ confirmText || '확인' }}
             </button>
           </div>
         </div>
@@ -31,22 +34,28 @@ import { ref } from 'vue'
 
 defineProps<{
   modelValue: boolean // 모달 열림, 닫힘 상태
-  title: string
-  message: string
-  confirmText?: string
+  title: string // 모달 제목
+  message: string // 알림 메시지
+  confirmText?: string // 확인 버튼 텍스트 (기본값: '확인')
+  showDontShowOption?: boolean // 오늘 하루 보지 않기 옵션 표시 여부
 }>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void // 모달 상태 업데이트
-  (e: 'confirm', dontShowToday: boolean): void // 확인 버튼 - 체크박스 상태도 함께 전달
+  (e: 'confirm', dontShowToday: boolean): void // 확인 버튼 클릭 시 체크박스 상태 전달
 }>()
 
 // "오늘 하루동안 보지 않기" 상태
 const dontShowToday = ref(false)
 
-// 모달 닫고 목록으로 이동하는 함수
+// 확인 버튼 클릭 핸들러
 const handleConfirm = () => {
   emit('confirm', dontShowToday.value)
+  emit('update:modelValue', false)
+}
+
+// 닫기 버튼 클릭 핸들러
+const handleClose = () => {
   emit('update:modelValue', false)
 }
 </script>
@@ -87,25 +96,14 @@ const handleConfirm = () => {
   color: #262626;
 }
 
-.close-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  color: #8c8c8c;
-  font-size: 20px;
-  line-height: 1;
-  transition: color 0.2s;
-}
-
-.close-button:hover {
-  color: #262626;
-}
-
 .modal-content {
   padding: 24px;
   font-size: 14px;
   color: #262626;
+}
+
+.message {
+  margin: 0;
 }
 
 .modal-footer {
@@ -165,6 +163,21 @@ const handleConfirm = () => {
 .btn-confirm:hover {
   background: #40a9ff;
   border-color: #40a9ff;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #8c8c8c;
+  font-size: 20px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
+  color: #262626;
 }
 
 /* 반응형 스타일 */
