@@ -75,34 +75,18 @@
       "publicIp": "203.0.113.203"
     },
     {
-      "id": "5dea",
-      "name": "모달 테스트",
-      "image": "ubuntu-2204-kube-v1.29.7",
-      "flavor": "C1M2D20",
-      "network": "public-network",
-      "cpu": 1,
-      "memory": 2,
-      "disk": 20,
-      "status": "RUNNING",
-      "powerOn": true,
-      "createdAt": "2025-07-10T01:36:15.650Z",
-      "privateIp": "172.30.110.111",
-      "publicIp": "203.0.113.73"
-    },
-    {
-      "id": "a5b1",
-      "name": "모달 테스트 2",
+      "id": "55e3",
+      "name": "로컬스토리지 테스트",
       "image": "ubuntu-2204-kube-v1.30.9",
       "flavor": "C1M2D20",
-      "network": "public-network",
+      "network": "private-network",
       "cpu": 1,
       "memory": 2,
       "disk": 20,
       "status": "RUNNING",
       "powerOn": true,
-      "createdAt": "2025-07-10T01:49:02.900Z",
-      "privateIp": "172.30.110.176",
-      "publicIp": "203.0.113.172"
+      "createdAt": "2025-07-10T02:07:47.639Z",
+      "privateIp": "172.30.110.156"
     }
   ]
 }

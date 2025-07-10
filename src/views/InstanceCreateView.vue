@@ -107,7 +107,7 @@
       title="알림"
       message="인스턴스 생성이 완료되었습니다."
       confirm-text="확인"
-      @confirm="handleModalConfirm"
+      @confirm="handleSuccessConfirm"
     />
   </div>
 </template>
@@ -226,8 +226,8 @@ const handleCreate = async () => {
   try {
     await instanceStore.createInstance({
       name: formData.value.name,
-      image: formData.value.image,
       flavor: formData.value.flavor,
+      image: formData.value.image,
       network: formData.value.network,
       cpu: formData.value.flavorDetail.cpu,
       memory: formData.value.flavorDetail.memory,
@@ -236,14 +236,29 @@ const handleCreate = async () => {
       powerOn: true,
       createdAt: new Date().toISOString(),
     })
-    showSuccessModal.value = true
+
+    // 오늘 하루 보지 않기 설정 확인
+    const dontShowDate = localStorage.getItem('dontShowCreateSuccess')
+    const today = new Date().toDateString()
+
+    if (dontShowDate === today) {
+      // 설정이 있으면 바로 목록 페이지로 이동
+      router.push({ name: 'instanceList' })
+    } else {
+      // 설정이 없으면 성공 모달 표시
+      showSuccessModal.value = true
+    }
   } catch (error) {
-    console.error('인스턴스 생성 실패:', error)
+    alert('인스턴스를 생성하는 중 오류가 발생했습니다.')
+    console.error('인스턴스 생성 중 오류:', error)
   }
 }
 
-// 모달 확인 버튼 핸들러 - 목록 페이지로 이동
-const handleModalConfirm = () => {
+// 성공 모달 확인 버튼 클릭 시
+const handleSuccessConfirm = (dontShowToday: boolean) => {
+  if (dontShowToday) {
+    localStorage.setItem('dontShowCreateSuccess', new Date().toDateString())
+  }
   router.push({ name: 'instanceList' })
 }
 

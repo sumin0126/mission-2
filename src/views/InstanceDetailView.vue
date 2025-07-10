@@ -70,17 +70,26 @@ watch(
   { deep: true, immediate: true }
 )
 
-// 인스턴스 삭제
+// 삭제 버튼 클릭 시
 const handleDelete = async () => {
-  showDeleteModal.value = true
+  // 오늘 하루 보지 않기 설정 확인
+  const dontShowDate = localStorage.getItem('dontShowDeleteConfirm')
+  const today = new Date().toDateString()
+
+  if (dontShowDate === today) {
+    // 오늘 하루 보지 않기가 설정되어 있으면 바로 삭제 진행
+    await handleDeleteConfirm(true)
+  } else {
+    // 설정이 없으면 모달 표시
+    showDeleteModal.value = true
+  }
 }
 
-// 삭제 확인
+// 삭제 확인 버튼 클릭 시
 const handleDeleteConfirm = async (dontShowToday: boolean) => {
   try {
     await instancesStore.deleteInstance(instance.value!.id)
     if (dontShowToday) {
-      // TODO: 로컬 스토리지에 '오늘 하루 보지 않기' 설정 저장
       localStorage.setItem('dontShowDeleteConfirm', new Date().toDateString())
     }
     router.push({ name: 'instanceList' })

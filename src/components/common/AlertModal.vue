@@ -37,22 +37,17 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void // v-model 업데이트 이벤트
-  (e: 'confirm', dontShowToday: boolean): void // 확인 버튼 클릭 이벤트 (체크 박스 상태도 함께 전달함)
+  (e: 'update:modelValue', value: boolean): void // 모달 상태 업데이트
+  (e: 'confirm', dontShowToday: boolean): void // 확인 버튼 - 체크박스 상태도 함께 전달
 }>()
 
 // "오늘 하루동안 보지 않기" 상태
 const dontShowToday = ref(false)
 
-// 모달 닫는 함수
-const handleClose = () => {
-  emit('update:modelValue', false)
-}
-
-// 확인 버튼 클릭 시
+// 모달 닫고 목록으로 이동하는 함수
 const handleConfirm = () => {
   emit('confirm', dontShowToday.value)
-  handleClose()
+  emit('update:modelValue', false)
 }
 </script>
 
