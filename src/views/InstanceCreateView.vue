@@ -32,7 +32,11 @@
               :disabled="!formData.name.trim() || isCheckingDuplicate"
               @click="checkDuplicateName"
             >
-              {{ isCheckingDuplicate ? '확인 중...' : '중복 확인' }}
+              {{
+                isCheckingDuplicate
+                  ? t('instance.create.button.checking')
+                  : t('instance.create.button.duplicateCheck')
+              }}
             </button>
           </div>
           <span v-if="errors.name" class="error-text">{{ errors.name }}</span>
@@ -123,7 +127,7 @@
     </div>
 
     <!-- 인스턴스 생성 성공 모달 -->
-    <AlertModal
+    <AppAlertModal
       v-model="showSuccessModal"
       :title="t('common.modal.notification')"
       :message="t('instance.create.success.message')"
@@ -144,7 +148,7 @@ import NetworkSelect from '@/components/instance/create/NetworkSelect.vue'
 import { useInstancesStore } from '@/stores/instances'
 import { useLoadingStore } from '@/stores/loading'
 import InstancePreview from '@/components/InstancePreview.vue'
-import AlertModal from '@/components/common/AlertModal.vue'
+import AppAlertModal from '@/components/common/AppAlertModal.vue'
 import type { Flavor } from '@/mock/types/flavor'
 import type { CreateInstanceRequest } from '@/mock/types/instance'
 import type { Instance } from '@/mock/types/instance'
@@ -466,11 +470,14 @@ const handleCancel = () => {
 
 .form-input {
   width: 100%;
-  padding: 8px 12px;
+  height: 40px;
+  padding: 8px 16px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   font-size: 14px;
-  height: 40px;
+  color: #262626;
+  background-color: #ffffff;
+  box-sizing: border-box;
 }
 
 .form-input:hover {
@@ -488,12 +495,14 @@ const handleCancel = () => {
 }
 
 :deep(.select-container) {
+  display: flex;
   position: relative;
 }
 
 :deep(.select-box) {
-  width: 100%;
-  padding: 8px 12px;
+  flex: 1;
+  height: 40px;
+  padding: 8px 16px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   cursor: pointer;
@@ -501,7 +510,6 @@ const handleCancel = () => {
   justify-content: space-between;
   align-items: center;
   background-color: #ffffff;
-  height: 40px;
   font-size: 14px;
   color: #262626;
   outline: none;
@@ -593,28 +601,58 @@ const handleCancel = () => {
   gap: 12px;
 }
 
+/* 버튼 기본 스타일 */
 .btn {
-  padding: 8px 20px;
+  height: 40px;
+  padding: 8px 16px;
   border-radius: 4px;
   font-size: 14px;
   font-weight: 400;
   cursor: pointer;
   transition: all 0.2s;
-  height: 40px;
   min-width: 80px;
-}
-
-.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background-color: #ffffff;
   border: 1px solid #d9d9d9;
   color: #262626;
 }
 
+/* 중복 확인 버튼 */
+.btn-check {
+  height: 38px;
+  padding: 7px 16px;
+  white-space: nowrap;
+  background-color: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #262626;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.btn-check:hover {
+  border-color: #40a9ff;
+  color: #40a9ff;
+}
+
+.btn-check:disabled {
+  background-color: #f5f5f5;
+  border-color: #d9d9d9;
+  color: #bfbfbf;
+  cursor: not-allowed;
+}
+
+/* 취소 버튼 */
 .btn-cancel:hover {
   border-color: #40a9ff;
   color: #40a9ff;
 }
 
+/* 생성 버튼 */
 .btn-create {
   background-color: #1890ff;
   border: 1px solid #1890ff;
@@ -669,18 +707,17 @@ const handleCancel = () => {
   flex: 1;
 }
 
-.btn-check {
-  background-color: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #262626;
-  height: 40px;
-  padding: 8px 16px;
+.name-input-group .btn-check {
+  width: auto;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.btn-check:hover {
-  border-color: #40a9ff;
-  color: #40a9ff;
+.btn-check:disabled {
+  background-color: #f5f5f5;
+  border-color: #d9d9d9;
+  color: #bfbfbf;
+  cursor: not-allowed;
 }
 
 .success-text {
@@ -755,6 +792,24 @@ const handleCancel = () => {
     font-size: 13px;
   }
 
+  .name-input-group {
+    display: flex;
+    gap: 8px;
+  }
+
+  .name-input-group .form-input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .name-input-group .btn-check {
+    width: fit-content;
+    padding: 6px 12px;
+    font-size: 13px;
+    height: 36px;
+    flex: none;
+  }
+
   .action-buttons {
     margin-top: 24px;
     display: flex;
@@ -764,11 +819,14 @@ const handleCancel = () => {
   }
 
   .btn {
-    flex: 1;
     padding: 6px 12px;
     font-size: 12px;
     height: 36px;
     min-width: 120px;
+  }
+
+  .action-buttons .btn {
+    flex: 1;
   }
 
   .error-text {
@@ -796,13 +854,11 @@ const handleCancel = () => {
   .action-bar {
     margin-bottom: 20px;
     width: 100%;
-    padding: 0 16px;
   }
 
   .create-form-container {
     flex-direction: column;
     width: 100%;
-    padding: 0 16px;
   }
 
   .form-section,
@@ -822,7 +878,6 @@ const handleCancel = () => {
   .action-buttons {
     width: 100%;
     margin-top: 32px;
-    padding: 0 16px;
   }
 }
 

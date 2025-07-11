@@ -28,7 +28,7 @@
     </div>
 
     <!-- 인스턴스 삭제 확인 모달 -->
-    <ConfirmModal
+    <AppConfirmModal
       v-model="showDeleteModal"
       :title="t('instance.detail.deleteConfirm.title')"
       :message="t('instance.detail.deleteConfirm.message', { name: instance?.name })"
@@ -46,7 +46,7 @@ import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '@/stores/instances'
 import { useLoadingStore } from '@/stores/loading'
 import { BasicInfo, NetworkInfo, ResourceInfo } from '@/components/instance/detail/components'
-import ConfirmModal from '@/components/common/ConfirmModal.vue'
+import AppConfirmModal from '@/components/common/AppConfirmModal.vue'
 import type { Instance } from '@/mock/types/instance'
 
 const { t } = useI18n()

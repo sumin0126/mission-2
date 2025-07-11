@@ -222,7 +222,7 @@ onUnmounted(() => {
 
 .select-box {
   width: 100%;
-  padding: 8px 12px;
+  padding: 8px 16px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   cursor: pointer;
@@ -233,6 +233,7 @@ onUnmounted(() => {
   height: 40px;
   font-size: 14px;
   color: #595959;
+  box-sizing: border-box;
 }
 
 .select-box:hover {

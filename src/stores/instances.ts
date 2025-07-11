@@ -22,7 +22,7 @@ const generatePublicIp = () => {
 // 네트워크 타입 확인 함수
 const getNetworkType = (networkName: string): 'private' | 'public' => {
   const network = mockNetworks.find((n) => n.name === networkName)
-  return network?.type || 'private'
+  return network?.type as 'private' | 'public'
 }
 
 export const useInstancesStore = defineStore('instances', () => {

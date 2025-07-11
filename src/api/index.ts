@@ -1,12 +1,20 @@
 import axios, { type AxiosInstance, type CreateAxiosDefaults } from 'axios'
 
-const create = (baseURL: string, options?: CreateAxiosDefaults): AxiosInstance => {
+const create = (options?: CreateAxiosDefaults): AxiosInstance => {
   const instance = axios.create({
-    baseURL,
+    baseURL: import.meta.env.VITE_API_BASE_URL,
+    timeout: Number(import.meta.env.VITE_API_TIMEOUT),
     ...options,
   })
+
+  // 개발 편의를 위한 요청/응답 로깅
+  instance.interceptors.request.use(async (config) => {
+    console.log('API Request:', config)
+    return config
+  })
+
   return instance
 }
 
-// json-server 엔드포인트 생성
-export const instancesAxios = create('http://localhost:3000')
+// Mock API 인스턴스 생성
+export const instancesAxios = create()

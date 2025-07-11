@@ -83,6 +83,8 @@ export default {
       },
       button: {
         creating: '생성 중...',
+        duplicateCheck: '중복 확인',
+        checking: '확인 중...',
       },
       success: {
         message: '인스턴스 생성이 완료되었습니다',

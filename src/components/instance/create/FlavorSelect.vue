@@ -99,21 +99,23 @@ onUnmounted(() => {
 <style scoped>
 .select-container {
   position: relative;
-  width: 100%;
+  display: flex;
 }
 
 .select-box {
-  width: 100%;
-  padding: 8px 12px;
+  flex: 1;
+  height: 40px;
+  padding: 8px 16px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
+  font-size: 14px;
+  color: #262626;
+  background-color: #ffffff;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #ffffff;
-  height: 40px;
-  font-size: 14px;
+  box-sizing: border-box;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

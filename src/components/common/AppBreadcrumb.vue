@@ -26,21 +26,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { setLanguage, getCurrentLanguageInfo, supportedLanguages } from '@/i18n'
+import { useLanguage } from '@/i18n/useLanguage'
 
 const { t } = useI18n()
-
-const currentLanguageInfo = computed(() => getCurrentLanguageInfo())
-
-// 언어 전환 함수 (한국어 ↔ 영어)
-const switchLanguage = () => {
-  const currentLang = currentLanguageInfo.value.code
-  const nextLang = supportedLanguages.find((lang) => lang.code !== currentLang)?.code || 'ko'
-  setLanguage(nextLang)
-  console.log('변경된 언어:', nextLang)
-}
+const { currentLanguageInfo, switchLanguage } = useLanguage()
 </script>
 
 <style scoped>

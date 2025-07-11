@@ -38,18 +38,10 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-
-interface Instance {
-  name: string
-  image: string
-  cpu: number
-  memory: number
-  disk: number
-  network: string
-}
+import type { Instance } from '@/mock/types/instance'
 
 defineProps<{
-  instance: Instance
+  instance: Partial<Instance>
   isValid: boolean
   showInvalid: boolean
 }>()

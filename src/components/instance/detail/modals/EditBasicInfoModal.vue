@@ -340,13 +340,14 @@ onUnmounted(() => {
 
 .form-input {
   width: 100%;
-  padding: 8px 12px;
+  padding: 8px 16px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   font-size: 14px;
   color: #595959;
   height: 40px;
   padding-right: 40px;
+  box-sizing: border-box;
 }
 
 .form-input:focus {
@@ -424,8 +425,8 @@ onUnmounted(() => {
 }
 
 .select-box {
-  width: 100%;
-  padding: 8px 12px;
+  flex: 1;
+  padding: 8px 16px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   cursor: pointer;
@@ -436,6 +437,7 @@ onUnmounted(() => {
   height: 40px;
   font-size: 14px;
   color: #595959;
+  box-sizing: border-box;
 }
 
 .select-box:hover {
@@ -453,7 +455,7 @@ onUnmounted(() => {
   display: inline-block;
   padding: 3px;
   transform: rotate(45deg);
-  margin-right: 8px;
+  margin-left: 8px;
   transition: transform 0.2s;
 }
 

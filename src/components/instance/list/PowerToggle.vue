@@ -11,7 +11,7 @@
     </label>
 
     <!-- 전원 끄기 경고 모달 -->
-    <PowerOffWarningModal
+    <AppPowerOffWarningModal
       v-model="showWarningModal"
       :title="t('common.modal.notification')"
       :main-message="t('instance.power.shutdown.message')"
@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import PowerOffWarningModal from '@/components/common/PowerOffWarningModal.vue'
+import AppPowerOffWarningModal from '@/components/common/AppPowerOffWarningModal.vue'
 import { useLoadingStore } from '@/stores/loading'
 
 const { t } = useI18n()

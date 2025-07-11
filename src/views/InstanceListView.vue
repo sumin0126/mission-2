@@ -30,7 +30,7 @@
     />
 
     <!-- 삭제 확인 모달 -->
-    <ConfirmModal
+    <AppConfirmModal
       v-model="showDeleteConfirmModal"
       :title="t('instance.delete.title')"
       :message="t('instance.delete.message', { count: selectedInstanceIds.length })"
@@ -49,7 +49,7 @@ import type { Instance } from '@/mock/types/instance'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import InstanceTable from '@/components/instance/list/InstanceTable.vue'
-import ConfirmModal from '@/components/common/ConfirmModal.vue'
+import AppConfirmModal from '@/components/common/AppConfirmModal.vue'
 
 const instanceStore = useInstancesStore()
 const loadingStore = useLoadingStore()
@@ -115,26 +115,26 @@ const deleteSelectedInstances = () => {
 // 삭제 확인 시
 const handleDeleteConfirm = async (dontShowToday: boolean) => {
   try {
-    loadingStore.startLoading()
-    // 로딩 스피너가 렌더링되도록 약간의 지연
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await loadingStore.withLoading(
+      async () => {
+        // 순차적으로 삭제 처리
+        for (const id of selectedInstanceIds.value) {
+          await instanceStore.deleteInstance(id)
+        }
+        selectedInstanceIds.value = []
+        // 삭제 후 목록 갱신
+        await instanceStore.getInstances()
 
-    // 순차적으로 삭제 처리
-    for (const id of selectedInstanceIds.value) {
-      await instanceStore.deleteInstance(id)
-    }
-    selectedInstanceIds.value = []
-    // 삭제 후 목록 갱신
-    await instanceStore.getInstances()
-
-    // 오늘 하루 보지 않기 설정 저장
-    if (dontShowToday) {
-      localStorage.setItem('dontShowDeleteConfirm', new Date().toDateString())
-    }
+        // 오늘 하루 보지 않기 설정 저장
+        if (dontShowToday) {
+          localStorage.setItem('dontShowDeleteConfirm', new Date().toDateString())
+        }
+      },
+      500, // 최소 0.5초
+      2000 // 최대 2초
+    )
   } catch (error) {
     console.error('인스턴스 삭제 실패:', error)
-  } finally {
-    loadingStore.stopLoading()
   }
 }
 

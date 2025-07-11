@@ -2,17 +2,18 @@
   "instances": [
     {
       "id": "inst-003",
-      "name": "web-server-prod",
-      "status": "SHUTDOWN",
-      "flavor": "C4M8D80",
+      "name": "web-server-prod-1",
+      "status": "RUNNING",
+      "flavor": "C8M16D160",
       "image": "ubuntu-2204-kube-v1.30.14",
-      "network": "private-network",
-      "cpu": 4,
-      "memory": 8,
-      "disk": 80,
+      "network": "public-network",
+      "cpu": 8,
+      "memory": 16,
+      "disk": 160,
       "privateIp": "172.30.110.84",
-      "powerOn": false,
-      "createdAt": "2024-01-25T14:20:00Z"
+      "powerOn": true,
+      "createdAt": "2024-01-25T14:20:00Z",
+      "publicIp": "203.0.113.143"
     },
     {
       "id": "inst-004",
@@ -68,8 +69,8 @@
       "cpu": 1,
       "memory": 2,
       "disk": 20,
-      "status": "RUNNING",
-      "powerOn": true,
+      "status": "SHUTDOWN",
+      "powerOn": false,
       "createdAt": "2025-07-11T04:25:24.433Z",
       "privateIp": "172.30.110.134",
       "publicIp": "203.0.113.129"
@@ -83,10 +84,55 @@
       "cpu": 1,
       "memory": 2,
       "disk": 20,
+      "status": "SHUTDOWN",
+      "powerOn": false,
+      "createdAt": "2025-07-11T05:43:40.102Z",
+      "privateIp": "172.30.110.177",
+      "publicIp": null
+    },
+    {
+      "id": "0ad8",
+      "name": "test",
+      "flavor": "C1M2D20",
+      "image": "ubuntu-2204-kube-v1.30.9",
+      "network": "private-network",
+      "cpu": 1,
+      "memory": 2,
+      "disk": 20,
       "status": "RUNNING",
       "powerOn": true,
-      "createdAt": "2025-07-11T05:43:40.102Z",
-      "privateIp": "172.30.110.177"
+      "createdAt": "2025-07-11T08:43:20.240Z",
+      "privateIp": "172.30.110.140",
+      "publicIp": null
+    },
+    {
+      "id": "326e",
+      "name": "ㄴㄴ",
+      "flavor": "C1M2D20",
+      "image": "ubuntu-2204-kube-v1.30.9",
+      "network": "private-network",
+      "cpu": 1,
+      "memory": 2,
+      "disk": 20,
+      "status": "RUNNING",
+      "powerOn": true,
+      "createdAt": "2025-07-11T08:49:36.443Z",
+      "privateIp": "172.30.110.245"
+    },
+    {
+      "id": "8a0c",
+      "name": "ㅁㅁ",
+      "flavor": "C2M4D40",
+      "image": "ubuntu-2204-kube-v1.29.7",
+      "network": "public-network",
+      "cpu": 2,
+      "memory": 4,
+      "disk": 40,
+      "status": "RUNNING",
+      "powerOn": true,
+      "createdAt": "2025-07-11T08:49:50.299Z",
+      "privateIp": "172.30.110.157",
+      "publicIp": "203.0.113.180"
     }
   ]
 }

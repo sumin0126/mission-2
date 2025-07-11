@@ -83,6 +83,8 @@ export default {
       },
       button: {
         creating: 'Creating...',
+        duplicateCheck: 'Check Duplicate',
+        checking: 'Checking...',
       },
       success: {
         message: 'Instance creation completed',

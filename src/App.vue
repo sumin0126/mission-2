@@ -2,14 +2,14 @@
 import { RouterView } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
 import AppBreadcrumb from '@/components/common/AppBreadcrumb.vue'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import AppLoadingSpinner from '@/components/common/AppLoadingSpinner.vue'
 import { useLoadingStore } from '@/stores/loading'
 
 const loadingStore = useLoadingStore()
 </script>
 
 <template>
-  <LoadingSpinner :is-visible="loadingStore.isLoading" />
+  <AppLoadingSpinner :is-visible="loadingStore.isLoading" />
   <AppHeader />
   <AppBreadcrumb />
   <main class="main-content">

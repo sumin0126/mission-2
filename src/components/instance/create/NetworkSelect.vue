@@ -20,8 +20,8 @@
         :class="{ selected: network.name === modelValue }"
         @click="selectItem(network.name)"
       >
-        <div class="network-name">{{ network.name }}</div>
-        <div class="network-detail">{{ t(network.description) }}</div>
+        {{ network.name }}
+        <span class="network-detail">{{ t(network.description) }}</span>
       </div>
     </div>
   </div>
@@ -91,21 +91,23 @@ onUnmounted(() => {
 <style scoped>
 .select-container {
   position: relative;
-  width: 100%;
+  display: flex;
 }
 
 .select-box {
-  width: 100%;
-  padding: 8px 12px;
+  flex: 1;
+  height: 40px;
+  padding: 8px 16px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
+  font-size: 14px;
+  color: #262626;
+  background-color: #ffffff;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #ffffff;
-  height: 40px;
-  font-size: 14px;
+  box-sizing: border-box;
 }
 
 .select-box:hover {
@@ -146,12 +148,13 @@ onUnmounted(() => {
 }
 
 .dropdown-item {
-  padding: 12px;
+  padding: 10px 12px;
   cursor: pointer;
   font-size: 14px;
   color: #262626;
-  position: relative;
-  height: 48px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .dropdown-item:hover {
@@ -164,19 +167,11 @@ onUnmounted(() => {
 
 .network-name {
   font-weight: 500;
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .network-detail {
-  font-size: 12px;
-  color: #8c8c8c;
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+  font-size: 14px;
+  color: #595959;
 }
 
 .placeholder {
