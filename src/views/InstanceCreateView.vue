@@ -142,6 +142,7 @@ import FlavorSelect from '@/components/instance/create/FlavorSelect.vue'
 import ImageSelect from '@/components/instance/create/ImageSelect.vue'
 import NetworkSelect from '@/components/instance/create/NetworkSelect.vue'
 import { useInstancesStore } from '@/stores/instances'
+import { useLoadingStore } from '@/stores/loading'
 import InstancePreview from '@/components/InstancePreview.vue'
 import AlertModal from '@/components/common/AlertModal.vue'
 import type { Flavor } from '@/mock/types/flavor'
@@ -161,6 +162,7 @@ type FormData = {
 
 const router = useRouter()
 const instanceStore = useInstancesStore()
+const loadingStore = useLoadingStore()
 const { t } = useI18n()
 
 // 상수 정의
@@ -319,18 +321,29 @@ const handleCreate = async () => {
   }
 
   try {
-    await instanceStore.createInstance({
-      name: formData.value.name,
-      flavor: formData.value.flavor,
-      image: formData.value.image,
-      network: formData.value.network,
-      cpu: formData.value.flavorDetail.cpu,
-      memory: formData.value.flavorDetail.memory,
-      disk: formData.value.flavorDetail.disk,
-      status: 'RUNNING',
-      powerOn: true,
-      createdAt: new Date().toISOString(),
-    })
+    // 생성 작업 시에만 로딩 표시
+    await loadingStore.withLoading(
+      async () => {
+        const result = await instanceStore.createInstance({
+          name: formData.value.name,
+          flavor: formData.value.flavor,
+          image: formData.value.image,
+          network: formData.value.network,
+          cpu: formData.value.flavorDetail.cpu,
+          memory: formData.value.flavorDetail.memory,
+          disk: formData.value.flavorDetail.disk,
+          status: 'RUNNING',
+          powerOn: true,
+          createdAt: new Date().toISOString(),
+        })
+
+        // 생성 성공 후 바로 목록 데이터 업데이트 (로딩 없이)
+        await instanceStore.getInstances()
+        return result
+      },
+      500, // 최소 0.5초
+      2000 // 최대 2초
+    )
 
     // 오늘 하루 보지 않기 설정 확인
     const dontShowDate = localStorage.getItem('dontShowCreateSuccess')

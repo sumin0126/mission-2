@@ -44,6 +44,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '@/stores/instances'
+import { useLoadingStore } from '@/stores/loading'
 import { BasicInfo, NetworkInfo, ResourceInfo } from '@/components/instance/detail/components'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
 import type { Instance } from '@/mock/types/instance'
@@ -52,6 +53,7 @@ const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const instancesStore = useInstancesStore()
+const loadingStore = useLoadingStore()
 const instance = ref<Instance | null>(null)
 const showDeleteModal = ref(false)
 
@@ -94,7 +96,16 @@ const handleDelete = async () => {
 // 삭제 확인 버튼 클릭 시
 const handleDeleteConfirm = async (dontShowToday: boolean) => {
   try {
-    await instancesStore.deleteInstance(instance.value!.id)
+    await loadingStore.withLoading(
+      async () => {
+        await instancesStore.deleteInstance(instance.value!.id)
+        // 삭제 후 목록 데이터 업데이트 (로딩 없이)
+        await instancesStore.getInstances()
+      },
+      500, // 최소 0.5초
+      2000 // 최대 2초
+    )
+
     if (dontShowToday) {
       localStorage.setItem('dontShowDeleteConfirm', new Date().toDateString())
     }

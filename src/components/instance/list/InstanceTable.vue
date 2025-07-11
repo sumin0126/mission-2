@@ -45,12 +45,9 @@
               />
             </td>
             <td>
-              <router-link
-                :to="{ name: 'instanceDetail', params: { id: instance.id } }"
-                class="instance-link"
-              >
+              <span class="instance-link" @click="navigateToDetail(instance.id)">
                 {{ instance.name }}
-              </router-link>
+              </span>
             </td>
             <td>
               <StatusBadge :status="instance.status" />
@@ -72,6 +69,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { useLoadingStore } from '@/stores/loading'
 import type { Instance } from '@/mock/types/instance'
 import StatusBadge from './StatusBadge.vue'
 import PowerToggle from './PowerToggle.vue'
@@ -93,6 +92,9 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+const router = useRouter()
+const loadingStore = useLoadingStore()
 
 // 현재 선택된 모든 인스턴스 ID들
 const selectedIds = ref<string[]>([])
@@ -129,6 +131,21 @@ const handleSelectInstance = (id: string) => {
 // 전원 토글 처리
 const handlePowerToggle = (instance: Instance) => {
   emit('togglePower', instance)
+}
+
+// 인스턴스 상세 페이지로 이동
+const navigateToDetail = async (instanceId: string) => {
+  try {
+    await loadingStore.withLoading(
+      async () => {
+        await router.push({ name: 'instanceDetail', params: { id: instanceId } })
+      },
+      500, // 최소 0.5초
+      2000 // 최대 2초
+    )
+  } catch (error) {
+    console.error('상세 페이지 이동 실패:', error)
+  }
 }
 </script>
 
@@ -192,6 +209,7 @@ const handlePowerToggle = (instance: Instance) => {
 .instance-link {
   color: #1890ff;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .instance-link:hover {

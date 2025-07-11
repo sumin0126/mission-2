@@ -49,8 +49,10 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Instance } from '@/mock/types/instance'
 import { mockNetworks } from '@/mock/data/networks'
+import { useLoadingStore } from '@/stores/loading'
 
 const { t } = useI18n()
+const loadingStore = useLoadingStore()
 
 const props = defineProps<{
   isOpen: boolean
@@ -105,8 +107,24 @@ const handleClose = () => {
   emit('close')
 }
 
-const handleSave = () => {
-  emit('save', formData.value)
+const handleSave = async () => {
+  // 저장할 데이터를 미리 준비
+  const dataToSave = { ...formData.value }
+
+  // 모달 먼저 닫기
+  emit('close')
+
+  try {
+    await loadingStore.withLoading(
+      async () => {
+        emit('save', dataToSave)
+      },
+      500, // 최소 0.5초
+      2000 // 최대 2초
+    )
+  } catch (error) {
+    console.error('저장 중 오류 발생:', error)
+  }
 }
 
 const toggleDropdown = () => {

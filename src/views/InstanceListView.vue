@@ -44,6 +44,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useInstancesStore } from '@/stores/instances'
+import { useLoadingStore } from '@/stores/loading'
 import type { Instance } from '@/mock/types/instance'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -51,6 +52,7 @@ import InstanceTable from '@/components/instance/list/InstanceTable.vue'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
 
 const instanceStore = useInstancesStore()
+const loadingStore = useLoadingStore()
 const selectedInstanceIds = ref<string[]>([])
 const router = useRouter()
 const { t } = useI18n()
@@ -60,8 +62,17 @@ const showDeleteConfirmModal = ref(false)
 
 // 컴포넌트 마운트 시 인스턴스 목록 로드
 onMounted(async () => {
+  // 생성 페이지에서 왔을 때는 이미 목록이 업데이트되어 있으므로 로딩 없이 진행
+  if (instanceStore.instances.length > 0) {
+    return
+  }
+
   try {
-    await instanceStore.getInstances()
+    await loadingStore.withLoading(
+      () => instanceStore.getInstances(),
+      500, // 최소 0.5초
+      2000 // 최대 2초
+    )
   } catch (error) {
     console.error('인스턴스 목록 로드 실패:', error)
   }
@@ -104,6 +115,10 @@ const deleteSelectedInstances = () => {
 // 삭제 확인 시
 const handleDeleteConfirm = async (dontShowToday: boolean) => {
   try {
+    loadingStore.startLoading()
+    // 로딩 스피너가 렌더링되도록 약간의 지연
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
     // 순차적으로 삭제 처리
     for (const id of selectedInstanceIds.value) {
       await instanceStore.deleteInstance(id)
@@ -118,6 +133,8 @@ const handleDeleteConfirm = async (dontShowToday: boolean) => {
     }
   } catch (error) {
     console.error('인스턴스 삭제 실패:', error)
+  } finally {
+    loadingStore.stopLoading()
   }
 }
 

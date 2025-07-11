@@ -27,8 +27,10 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PowerOffWarningModal from '@/components/common/PowerOffWarningModal.vue'
+import { useLoadingStore } from '@/stores/loading'
 
 const { t } = useI18n()
+const loadingStore = useLoadingStore()
 
 const props = defineProps<{
   isRunning: boolean
@@ -41,10 +43,20 @@ const emit = defineEmits<{
 
 const showWarningModal = ref(false)
 
-const handleClick = () => {
-  // 전원을 켤 때는 바로 실행
+const handleClick = async () => {
+  // 전원을 켤 때는 로딩 스피너와 함께 바로 실행
   if (!props.isRunning) {
-    emit('toggle')
+    try {
+      await loadingStore.withLoading(
+        async () => {
+          emit('toggle')
+        },
+        500, // 최소 0.5초
+        2000 // 최대 2초
+      )
+    } catch (error) {
+      console.error('전원 켜기 실패:', error)
+    }
     return
   }
 
@@ -52,9 +64,20 @@ const handleClick = () => {
   showWarningModal.value = true
 }
 
-const handleConfirm = () => {
-  emit('toggle')
+const handleConfirm = async () => {
   showWarningModal.value = false
+
+  try {
+    await loadingStore.withLoading(
+      async () => {
+        emit('toggle')
+      },
+      500, // 최소 0.5초
+      2000 // 최대 2초
+    )
+  } catch (error) {
+    console.error('전원 끄기 실패:', error)
+  }
 }
 </script>
 

@@ -3,7 +3,7 @@
     {
       "id": "inst-003",
       "name": "web-server-prod",
-      "status": "RUNNING",
+      "status": "SHUTDOWN",
       "flavor": "C4M8D80",
       "image": "ubuntu-2204-kube-v1.30.14",
       "network": "private-network",
@@ -11,13 +11,13 @@
       "memory": 8,
       "disk": 80,
       "privateIp": "172.30.110.84",
-      "powerOn": true,
+      "powerOn": false,
       "createdAt": "2024-01-25T14:20:00Z"
     },
     {
       "id": "inst-004",
       "name": "db-server-1g",
-      "status": "RUNNING",
+      "status": "SHUTDOWN",
       "flavor": "C8M16D160",
       "image": "ubuntu-2204-kube-v1.31.10",
       "network": "private-network",
@@ -25,7 +25,7 @@
       "memory": 16,
       "disk": 160,
       "privateIp": "172.30.110.85",
-      "powerOn": true,
+      "powerOn": false,
       "createdAt": "2024-02-01T08:45:00Z",
       "publicIp": null
     },
@@ -43,50 +43,6 @@
       "powerOn": true,
       "createdAt": "2024-02-10T11:20:00Z",
       "publicIp": "203.0.113.94"
-    },
-    {
-      "id": "5839",
-      "name": "외부 test",
-      "image": "ubuntu-2204-kube-v1.29.7",
-      "flavor": "C2M4D40",
-      "network": "public-network",
-      "cpu": 2,
-      "memory": 4,
-      "disk": 40,
-      "status": "RUNNING",
-      "powerOn": true,
-      "createdAt": "2025-07-09T05:34:26.839Z",
-      "privateIp": "172.30.110.129",
-      "publicIp": "203.0.113.217"
-    },
-    {
-      "id": "515a",
-      "name": "전원상태 테스트1",
-      "flavor": "C2M4D40",
-      "image": "ubuntu-2204-kube-v1.29.7",
-      "network": "public-network",
-      "cpu": 2,
-      "memory": 4,
-      "disk": 40,
-      "status": "RUNNING",
-      "powerOn": true,
-      "createdAt": "2025-07-10T14:09:51.190Z",
-      "privateIp": "172.30.110.173",
-      "publicIp": "203.0.113.245"
-    },
-    {
-      "id": "d366",
-      "name": "테스트-2",
-      "flavor": "C1M2D20",
-      "image": "ubuntu-2204-kube-v1.30.9",
-      "network": "private-network",
-      "cpu": 1,
-      "memory": 2,
-      "disk": 20,
-      "status": "RUNNING",
-      "powerOn": true,
-      "createdAt": "2025-07-10T14:16:07.107Z",
-      "privateIp": "172.30.110.103"
     },
     {
       "id": "55d6",
@@ -117,6 +73,20 @@
       "createdAt": "2025-07-11T04:25:24.433Z",
       "privateIp": "172.30.110.134",
       "publicIp": "203.0.113.129"
+    },
+    {
+      "id": "6eeb",
+      "name": "로딩 테스트-1",
+      "flavor": "C1M2D20",
+      "image": "ubuntu-2204-kube-v1.30.9",
+      "network": "private-network",
+      "cpu": 1,
+      "memory": 2,
+      "disk": 20,
+      "status": "RUNNING",
+      "powerOn": true,
+      "createdAt": "2025-07-11T05:43:40.102Z",
+      "privateIp": "172.30.110.177"
     }
   ]
 }
