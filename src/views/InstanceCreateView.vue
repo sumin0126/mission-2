@@ -3,8 +3,8 @@
     <!-- 상단 액션 바 -->
     <div class="action-bar">
       <div class="page-title">
-        <h2>Instance</h2>
-        <p>새로운 인스턴스를 생성합니다</p>
+        <h2>{{ t('instance.title') }}</h2>
+        <p>{{ t('instance.create.description') }}</p>
       </div>
     </div>
 
@@ -13,12 +13,12 @@
       <div class="form-section">
         <!-- 인스턴스 이름 입력 -->
         <div class="form-group">
-          <label>인스턴스 이름<span class="required">*</span></label>
+          <label>{{ t('instance.create.form.name.label') }}<span class="required">*</span></label>
           <input
             ref="nameInput"
             type="text"
             v-model="formData.name"
-            placeholder="이름을 입력해 주세요."
+            :placeholder="t('instance.create.form.name.placeholder')"
             class="form-input"
             :class="{ 'input-error': errors.name }"
             @keydown.enter="handleEnter('name')"
@@ -29,7 +29,7 @@
 
         <!-- 이미지 선택 -->
         <div class="form-group">
-          <label>이미지<span class="required">*</span></label>
+          <label>{{ t('instance.create.form.image.label') }}<span class="required">*</span></label>
           <ImageSelect
             ref="imageSelect"
             v-model="formData.image"
@@ -43,7 +43,7 @@
 
         <!-- Flavor 선택 -->
         <div class="form-group">
-          <label>Flavor<span class="required">*</span></label>
+          <label>{{ t('instance.create.form.flavor.label') }}<span class="required">*</span></label>
           <FlavorSelect
             ref="flavorSelect"
             v-model="formData.flavor"
@@ -58,7 +58,9 @@
 
         <!-- 네트워크 선택 -->
         <div class="form-group">
-          <label>네트워크<span class="required">*</span></label>
+          <label
+            >{{ t('instance.create.form.network.label') }}<span class="required">*</span></label
+          >
           <NetworkSelect
             ref="networkSelect"
             v-model="formData.network"
@@ -90,9 +92,11 @@
 
     <!-- 하단 버튼 영역 -->
     <div class="action-buttons">
-      <button class="btn btn-cancel" @click="handleCancel">취소</button>
+      <button class="btn btn-cancel" @click="handleCancel">{{ t('common.button.cancel') }}</button>
       <button class="btn btn-create" :disabled="instanceStore.isLoading" @click="handleCreate">
-        {{ instanceStore.isLoading ? '생성 중...' : '생성' }}
+        {{
+          instanceStore.isLoading ? t('instance.create.button.creating') : t('common.button.create')
+        }}
       </button>
     </div>
 
@@ -104,9 +108,9 @@
     <!-- 인스턴스 생성 성공 모달 -->
     <AlertModal
       v-model="showSuccessModal"
-      title="알림"
-      message="인스턴스 생성이 완료되었습니다."
-      confirm-text="확인"
+      :title="t('common.modal.notification')"
+      :message="t('instance.create.success.message')"
+      :confirm-text="t('common.button.confirm')"
       :show-dont-show-option="true"
       @confirm="handleSuccessConfirm"
     />
@@ -116,6 +120,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import FlavorSelect from '@/components/instance/create/FlavorSelect.vue'
 import ImageSelect from '@/components/instance/create/ImageSelect.vue'
 import NetworkSelect from '@/components/instance/create/NetworkSelect.vue'
@@ -136,12 +141,16 @@ type FormData = {
   flavorDetail: Flavor
 }
 
+const router = useRouter()
+const instanceStore = useInstancesStore()
+const { t } = useI18n()
+
 // 상수 정의
 const VALIDATION_MESSAGES = {
-  name: '인스턴스 이름을 입력해주세요.',
-  image: '이미지를 선택해주세요.',
-  flavor: 'Flavor를 선택해주세요.',
-  network: '네트워크를 선택해주세요.',
+  name: t('instance.create.validation.name'),
+  image: t('instance.create.validation.image'),
+  flavor: t('instance.create.validation.flavor'),
+  network: t('instance.create.validation.network'),
 } as const
 
 const INITIAL_FLAVOR: Flavor = {
@@ -151,9 +160,6 @@ const INITIAL_FLAVOR: Flavor = {
   memory: 0,
   disk: 0,
 }
-
-const router = useRouter()
-const instanceStore = useInstancesStore()
 
 // 폼 필드 refs
 const nameInput = ref<HTMLInputElement | null>(null)

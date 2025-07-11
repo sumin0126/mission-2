@@ -1,14 +1,14 @@
 import type { Network } from '../types/network'
 
-export const mockNetworks: Network[] = [
+export const mockNetworks = [
   {
     name: 'private-network',
+    description: 'instance.network.private',
     type: 'private',
-    description: '내부 IP 자동 할당',
   },
   {
     name: 'public-network',
+    description: 'instance.network.public',
     type: 'public',
-    description: '내부/외부 IP 자동 할당',
   },
 ]

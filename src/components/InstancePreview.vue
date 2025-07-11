@@ -6,30 +6,30 @@
       'preview-box-invalid': showInvalid,
     }"
   >
-    <h3>선택된 사양 미리보기</h3>
+    <h3>{{ t('instance.preview.title') }}</h3>
     <div class="preview-content">
       <div class="preview-item">
-        <span class="label">이름</span>
+        <span class="label">{{ t('instance.preview.name') }}</span>
         <span class="value">{{ instance.name || '-' }}</span>
       </div>
       <div class="preview-item">
-        <span class="label">이미지</span>
+        <span class="label">{{ t('instance.preview.image') }}</span>
         <span class="value">{{ instance.image || '-' }}</span>
       </div>
       <div class="preview-item">
-        <span class="label">CPU</span>
+        <span class="label">{{ t('instance.preview.cpu') }}</span>
         <span class="value">{{ instance.cpu || '-' }}</span>
       </div>
       <div class="preview-item">
-        <span class="label">메모리</span>
+        <span class="label">{{ t('instance.preview.memory') }}</span>
         <span class="value">{{ instance.memory ? instance.memory + 'GB' : '-' }}</span>
       </div>
       <div class="preview-item">
-        <span class="label">디스크</span>
+        <span class="label">{{ t('instance.preview.disk') }}</span>
         <span class="value">{{ instance.disk ? instance.disk + 'GB' : '-' }}</span>
       </div>
       <div class="preview-item">
-        <span class="label">네트워크</span>
+        <span class="label">{{ t('instance.preview.network') }}</span>
         <span class="value">{{ instance.network || '-' }}</span>
       </div>
     </div>
@@ -37,6 +37,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 interface Instance {
   name: string
   image: string
@@ -51,6 +53,8 @@ defineProps<{
   isValid: boolean
   showInvalid: boolean
 }>()
+
+const { t } = useI18n()
 </script>
 
 <style scoped>

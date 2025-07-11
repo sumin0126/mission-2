@@ -1,23 +1,29 @@
 <template>
   <div class="section-box">
     <div class="section-header">
-      <h3>리소스 정보</h3>
+      <h3>{{ t('instance.detail.resourceInfo.title') }}</h3>
       <button class="btn-edit" @click="openModal">
         <span class="edit-icon">✎</span>
       </button>
     </div>
     <div class="section-content">
       <div class="info-row">
-        <span class="label">CPU</span>
-        <span class="value">{{ currentInstance?.cpu || '-' }}코어</span>
+        <span class="label">{{ t('instance.detail.resourceInfo.cpu') }}</span>
+        <span class="value"
+          >{{ currentInstance?.cpu || '-' }}{{ t('instance.detail.resourceInfo.unit.core') }}</span
+        >
       </div>
       <div class="info-row">
-        <span class="label">메모리</span>
-        <span class="value">{{ currentInstance?.memory || '-' }}GB</span>
+        <span class="label">{{ t('instance.detail.resourceInfo.memory') }}</span>
+        <span class="value"
+          >{{ currentInstance?.memory || '-' }}{{ t('instance.detail.resourceInfo.unit.gb') }}</span
+        >
       </div>
       <div class="info-row">
-        <span class="label">디스크</span>
-        <span class="value">{{ currentInstance?.disk || '-' }}GB</span>
+        <span class="label">{{ t('instance.detail.resourceInfo.disk') }}</span>
+        <span class="value"
+          >{{ currentInstance?.disk || '-' }}{{ t('instance.detail.resourceInfo.unit.gb') }}</span
+        >
       </div>
     </div>
 
@@ -34,11 +40,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Instance } from '@/mock/types/instance'
 import { EditResourceInfoModal } from '../modals'
 import { useInstancesStore } from '@/stores/instances'
 import { mockFlavors } from '@/mock/data/flavors'
 
+const { t } = useI18n()
 const props = defineProps<{
   instance: Instance | null
 }>()
@@ -70,7 +78,7 @@ const handleSave = async (data: { flavor: string }) => {
     // 선택된 flavor의 리소스 정보 가져오기
     const selectedFlavor = mockFlavors.find((f) => f.name === data.flavor)
     if (!selectedFlavor) {
-      throw new Error('선택된 flavor를 찾을 수 없습니다.')
+      throw new Error(t('instance.detail.resourceInfo.error.flavorNotFound'))
     }
 
     // 리소스 정보 업데이트 (flavor와 관련 리소스 값들 모두 업데이트)
@@ -85,8 +93,8 @@ const handleSave = async (data: { flavor: string }) => {
     await instancesStore.getInstance(currentInstance.value.id)
     closeModal()
   } catch (error) {
-    console.error('인스턴스 업데이트 중 오류:', error)
-    alert('인스턴스 정보 업데이트에 실패했습니다.')
+    console.error(t('instance.detail.resourceInfo.error.updateLog'), error)
+    alert(t('instance.detail.resourceInfo.error.update'))
   }
 }
 </script>

@@ -8,7 +8,7 @@
       tabindex="0"
     >
       <span :class="{ placeholder: !modelValue }">{{
-        modelValue || '네트워크를 선택해 주세요'
+        modelValue || t('instance.create.form.network.placeholder')
       }}</span>
       <span class="arrow-down"></span>
     </div>
@@ -21,7 +21,7 @@
         @click="selectItem(network.name)"
       >
         <div class="network-name">{{ network.name }}</div>
-        <div class="network-detail">{{ network.description }}</div>
+        <div class="network-detail">{{ t(network.description) }}</div>
       </div>
     </div>
   </div>
@@ -29,8 +29,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { mockNetworks } from '@/mock/data/networks'
 import type { Network } from '@/mock/types/network'
+
+const { t } = useI18n()
 
 // 부모 컴포넌트로부터 받는 props (선택된 네트워크 이름)
 defineProps<{

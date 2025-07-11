@@ -2,21 +2,21 @@
   <div v-if="isOpen" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>기본 정보</h3>
+        <h3>{{ t('instance.detail.editBasicInfo.title') }}</h3>
         <button class="close-button" @click="handleClose">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label>인스턴스 이름</label>
+          <label>{{ t('instance.detail.editBasicInfo.name.label') }}</label>
           <input
             type="text"
             v-model="formData.name"
             class="form-input"
-            :placeholder="instance.name"
+            :placeholder="t('instance.detail.editBasicInfo.name.placeholder')"
           />
         </div>
         <div class="form-group">
-          <label>전원 관리</label>
+          <label>{{ t('instance.detail.editBasicInfo.power.label') }}</label>
           <div class="select-container" ref="selectContainer">
             <div
               class="select-box"
@@ -24,7 +24,7 @@
               @click="toggleDropdown"
               tabindex="0"
             >
-              <span>{{ formData.power === 'on' ? 'on' : 'off' }}</span>
+              <span>{{ t(`instance.detail.editBasicInfo.power.${formData.power}`) }}</span>
               <span class="arrow-down"></span>
             </div>
             <div class="dropdown-list" :class="{ 'dropdown-open': isDropdownOpen }">
@@ -35,15 +35,19 @@
                 :class="{ selected: option === formData.power }"
                 @click="selectPowerOption(option)"
               >
-                {{ option }}
+                {{ t(`instance.detail.editBasicInfo.power.${option}`) }}
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-cancel" @click="handleClose">취소</button>
-        <button class="btn btn-save" @click="handleSave">저장</button>
+        <button class="btn btn-cancel" @click="handleClose">
+          {{ t('instance.detail.editBasicInfo.button.cancel') }}
+        </button>
+        <button class="btn btn-save" @click="handleSave">
+          {{ t('instance.detail.editBasicInfo.button.save') }}
+        </button>
       </div>
     </div>
   </div>
@@ -51,8 +55,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Instance } from '@/mock/types/instance'
 
+const { t } = useI18n()
 const props = defineProps<{
   isOpen: boolean
   instance: Instance

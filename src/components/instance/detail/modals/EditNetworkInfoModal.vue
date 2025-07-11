@@ -2,12 +2,12 @@
   <div v-if="isOpen" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>네트워크</h3>
+        <h3>{{ t('instance.detail.editNetworkInfo.title') }}</h3>
         <button class="close-button" @click="handleClose">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label>네트워크</label>
+          <label>{{ t('instance.detail.editNetworkInfo.network.label') }}</label>
           <div class="select-container" ref="selectContainer">
             <div
               class="select-box"
@@ -33,8 +33,12 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-cancel" @click="handleClose">취소</button>
-        <button class="btn btn-save" @click="handleSave">저장</button>
+        <button class="btn btn-cancel" @click="handleClose">
+          {{ t('instance.detail.editNetworkInfo.button.cancel') }}
+        </button>
+        <button class="btn btn-save" @click="handleSave">
+          {{ t('instance.detail.editNetworkInfo.button.save') }}
+        </button>
       </div>
     </div>
   </div>
@@ -42,8 +46,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Instance } from '@/mock/types/instance'
 import { mockNetworks } from '@/mock/data/networks'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   isOpen: boolean

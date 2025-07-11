@@ -3,8 +3,8 @@
     <!-- 상단 액션 바 -->
     <div class="action-bar">
       <div class="page-title">
-        <h2>Instance</h2>
-        <p>생성한 인스턴스를 조회 및 관리하실 수 있습니다</p>
+        <h2>{{ t('instance.title') }}</h2>
+        <p>{{ t('instance.list.description') }}</p>
       </div>
       <div class="action-buttons">
         <button
@@ -12,9 +12,11 @@
           :disabled="selectedInstanceIds.length === 0"
           @click="deleteSelectedInstances"
         >
-          삭제
+          {{ t('common.button.delete') }}
         </button>
-        <button class="btn btn-primary" @click="navigateToCreatePage">생성</button>
+        <button class="btn btn-primary" @click="navigateToCreatePage">
+          {{ t('common.button.create') }}
+        </button>
       </div>
     </div>
 
@@ -30,10 +32,10 @@
     <!-- 삭제 확인 모달 -->
     <ConfirmModal
       v-model="showDeleteConfirmModal"
-      title="인스턴스 삭제"
-      :message="'선택한 ' + selectedInstanceIds.length + '개의 인스턴스를 삭제하시겠습니까?'"
-      confirm-text="삭제"
-      cancel-text="취소"
+      :title="t('instance.delete.title')"
+      :message="t('instance.delete.message', { count: selectedInstanceIds.length })"
+      :confirm-text="t('common.button.delete')"
+      :cancel-text="t('common.button.cancel')"
       @confirm="handleDeleteConfirm"
     />
   </div>

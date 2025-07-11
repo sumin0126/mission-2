@@ -13,11 +13,11 @@
     <!-- 전원 끄기 경고 모달 -->
     <PowerOffWarningModal
       v-model="showWarningModal"
-      title="주의"
-      main-message="가상머신을 종료하시겠습니까?"
-      warning-message="종료 시, 실행 중인 모든 작업이 중단됩니다."
-      confirm-text="종료"
-      cancel-text="취소"
+      :title="t('common.modal.notification')"
+      :main-message="t('instance.power.shutdown.message')"
+      :warning-message="t('instance.power.shutdown.warning')"
+      :confirm-text="t('instance.power.shutdown.confirm')"
+      :cancel-text="t('common.button.cancel')"
       @confirm="handleConfirm"
     />
   </div>
@@ -25,7 +25,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import PowerOffWarningModal from '@/components/common/PowerOffWarningModal.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   isRunning: boolean

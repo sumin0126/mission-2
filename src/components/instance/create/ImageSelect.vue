@@ -8,7 +8,7 @@
       tabindex="0"
     >
       <span :class="{ placeholder: !modelValue }">{{
-        modelValue || '운영체제를 선택해 주세요'
+        modelValue || t('instance.create.form.image.placeholder')
       }}</span>
       <span class="arrow-down"></span>
     </div>
@@ -28,8 +28,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { mockImages } from '@/mock/data/images'
 import type { Image } from '@/mock/types/image'
+
+const { t } = useI18n()
 
 // 부모 컴포넌트로부터 받는 props (선택된 이미지 이름)
 defineProps<{

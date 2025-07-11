@@ -10,8 +10,10 @@
       <span :class="{ placeholder: !modelValue }">
         {{
           modelValue
-            ? `${modelValue} - ${mockFlavors.find((f) => f.name === modelValue)?.description}`
-            : 'Flavor를 선택해 주세요'
+            ? `${modelValue} - ${t(
+                mockFlavors.find((f) => f.name === modelValue)?.description || ''
+              )}`
+            : t('instance.create.form.flavor.placeholder')
         }}
       </span>
       <span class="arrow-down"></span>
@@ -25,7 +27,7 @@
         @click="selectItem(flavor)"
       >
         {{ flavor.name }}
-        <div class="flavor-detail">{{ flavor.description }}</div>
+        <div class="flavor-detail">{{ t(flavor.description) }}</div>
       </div>
     </div>
   </div>
@@ -33,8 +35,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { mockFlavors } from '@/mock/data/flavors'
 import type { Flavor } from '@/mock/types/flavor'
+
+const { t } = useI18n()
 
 // 부모 컴포넌트로부터 받는 props (선택된 Flavor 이름)
 defineProps<{

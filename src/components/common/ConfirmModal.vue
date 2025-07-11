@@ -15,7 +15,7 @@
           <div class="checkbox-wrapper">
             <label class="checkbox-label">
               <input type="checkbox" v-model="dontShowToday" class="checkbox-input" />
-              <span class="checkbox-text">오늘 하루동안 보지 않기</span>
+              <span class="checkbox-text">{{ t('common.modal.dontShowToday') }}</span>
             </label>
           </div>
           <div class="button-wrapper">
@@ -34,6 +34,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 defineProps<{
   modelValue: boolean // 모달 열림, 닫힘 상태

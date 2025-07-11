@@ -89,18 +89,19 @@
       "privateIp": "172.30.110.103"
     },
     {
-      "id": "f7ce",
-      "name": "테스트",
-      "flavor": "C1M2D20",
-      "image": "ubuntu-2204-kube-v1.30.9",
-      "network": "private-network",
-      "cpu": 1,
-      "memory": 2,
-      "disk": 20,
+      "id": "55d6",
+      "name": "다국어 지원 테스트",
+      "flavor": "C2M4D40",
+      "image": "ubuntu-2204-kube-v1.29.7",
+      "network": "public-network",
+      "cpu": 2,
+      "memory": 4,
+      "disk": 40,
       "status": "RUNNING",
       "powerOn": true,
-      "createdAt": "2025-07-10T14:46:11.040Z",
-      "privateIp": "172.30.110.120"
+      "createdAt": "2025-07-11T01:39:29.843Z",
+      "privateIp": "172.30.110.168",
+      "publicIp": "203.0.113.76"
     }
   ]
 }

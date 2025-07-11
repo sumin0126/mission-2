@@ -1,22 +1,22 @@
 <template>
   <div class="section-box">
     <div class="section-header">
-      <h3>네트워크 정보</h3>
+      <h3>{{ t('instance.detail.networkInfo.title') }}</h3>
       <button class="btn-edit" @click="openModal">
         <span class="edit-icon">✎</span>
       </button>
     </div>
     <div class="section-content">
       <div class="info-row">
-        <span class="label">네트워크</span>
+        <span class="label">{{ t('instance.detail.networkInfo.network') }}</span>
         <span class="value">{{ currentInstance?.network || '-' }}</span>
       </div>
       <div class="info-row">
-        <span class="label">내부 IP</span>
+        <span class="label">{{ t('instance.detail.networkInfo.privateIp') }}</span>
         <span class="value">{{ currentInstance?.privateIp || '-' }}</span>
       </div>
       <div class="info-row">
-        <span class="label">외부 IP</span>
+        <span class="label">{{ t('instance.detail.networkInfo.publicIp') }}</span>
         <span class="value">{{ currentInstance?.publicIp || '-' }}</span>
       </div>
     </div>
@@ -34,12 +34,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Instance } from '@/mock/types/instance'
 import type { Network } from '@/mock/types/network'
 import { EditNetworkInfoModal } from '../modals'
 import { useInstancesStore } from '@/stores/instances'
 import { mockNetworks } from '@/mock/data/networks'
 
+const { t } = useI18n()
 const props = defineProps<{
   instance: Instance | null
 }>()
@@ -77,8 +79,8 @@ const handleSave = async (data: { network: string }) => {
     await instancesStore.getInstance(currentInstance.value.id)
     closeModal()
   } catch (error) {
-    console.error('인스턴스 업데이트 중 오류:', error)
-    alert('인스턴스 정보 업데이트에 실패했습니다.')
+    console.error(t('instance.detail.networkInfo.error.updateLog'), error)
+    alert(t('instance.detail.networkInfo.error.update'))
   }
 }
 </script>

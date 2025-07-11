@@ -1,22 +1,22 @@
 <template>
   <div class="section-box">
     <div class="section-header">
-      <h3>기본 정보</h3>
+      <h3>{{ t('instance.detail.basicInfo.title') }}</h3>
       <button class="btn-edit" @click="openModal">
         <span class="edit-icon">✎</span>
       </button>
     </div>
     <div class="section-content">
       <div class="info-row">
-        <span class="label">인스턴스 이름</span>
+        <span class="label">{{ t('instance.detail.basicInfo.name') }}</span>
         <span class="value">{{ currentInstance?.name || '-' }}</span>
       </div>
       <div class="info-row">
-        <span class="label">이미지</span>
+        <span class="label">{{ t('instance.detail.basicInfo.image') }}</span>
         <span class="value">{{ currentInstance?.image || '-' }}</span>
       </div>
       <div class="info-row">
-        <span class="label">전원 상태</span>
+        <span class="label">{{ t('instance.detail.basicInfo.powerStatus') }}</span>
         <span class="value">
           <span
             class="status-tag"
@@ -44,10 +44,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Instance } from '@/mock/types/instance'
 import { EditBasicInfoModal } from '../modals'
 import { useInstancesStore } from '@/stores/instances'
 
+const { t } = useI18n()
 const props = defineProps<{
   instance: Instance | null
 }>()
@@ -94,8 +96,8 @@ const handleSave = async (data: { name: string; power: string }) => {
 
     closeModal()
   } catch (error) {
-    console.error('인스턴스 업데이트 중 오류:', error)
-    alert('인스턴스 정보 업데이트에 실패했습니다.')
+    console.error(t('instance.detail.basicInfo.error.updateLog'), error)
+    alert(t('instance.detail.basicInfo.error.update'))
   }
 }
 </script>

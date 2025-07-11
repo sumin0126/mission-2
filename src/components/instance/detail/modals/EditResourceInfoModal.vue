@@ -2,12 +2,12 @@
   <div v-if="isOpen" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>리소스 정보</h3>
+        <h3>{{ t('instance.detail.editResourceInfo.title') }}</h3>
         <button class="close-button" @click="handleClose">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label>리사이징</label>
+          <label>{{ t('instance.detail.editResourceInfo.resize.label') }}</label>
           <div class="select-container" ref="selectContainer">
             <div
               class="select-box"
@@ -33,8 +33,12 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-cancel" @click="handleClose">취소</button>
-        <button class="btn btn-save" @click="handleSave">저장</button>
+        <button class="btn btn-cancel" @click="handleClose">
+          {{ t('instance.detail.editResourceInfo.button.cancel') }}
+        </button>
+        <button class="btn btn-save" @click="handleSave">
+          {{ t('instance.detail.editResourceInfo.button.save') }}
+        </button>
       </div>
     </div>
   </div>
@@ -42,9 +46,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Instance } from '@/mock/types/instance'
 import { mockFlavors } from '@/mock/data/flavors'
 
+const { t } = useI18n()
 const props = defineProps<{
   isOpen: boolean
   instance: Instance
@@ -88,7 +94,7 @@ const flavorOptions = mockFlavors.map((flavor) => flavor.name)
 // 선택된 flavor의 설명 가져오기
 const getFlavorDescription = (flavorName: string) => {
   const flavor = mockFlavors.find((f) => f.name === flavorName)
-  return flavor?.description || flavorName
+  return flavor ? t(flavor.description) : flavorName
 }
 
 const isDropdownOpen = ref(false)

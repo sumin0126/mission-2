@@ -5,11 +5,15 @@
         <router-link :to="{ name: 'instanceList' }" class="back-button">
           <span class="back-arrow">←</span>
         </router-link>
-        <h2>{{ instance?.name || 'Loading...' }}</h2>
+        <h2>{{ instance?.name || t('instance.detail.loading') }}</h2>
       </div>
       <div class="action-buttons">
         <button class="btn btn-delete" @click="handleDelete" :disabled="instancesStore.isDeleting">
-          {{ instancesStore.isDeleting ? '삭제 중...' : '삭제' }}
+          {{
+            instancesStore.isDeleting
+              ? t('instance.detail.deleteButton.deleting')
+              : t('instance.detail.deleteButton.delete')
+          }}
         </button>
       </div>
     </div>
@@ -26,10 +30,10 @@
     <!-- 인스턴스 삭제 확인 모달 -->
     <ConfirmModal
       v-model="showDeleteModal"
-      title="알림"
-      :message="`'${instance?.name}' 인스턴스를 삭제하시겠습니까?`"
-      confirm-text="확인"
-      cancel-text="취소"
+      :title="t('instance.detail.deleteConfirm.title')"
+      :message="t('instance.detail.deleteConfirm.message', { name: instance?.name })"
+      :confirm-text="t('common.button.confirm')"
+      :cancel-text="t('common.button.cancel')"
       @confirm="handleDeleteConfirm"
     />
   </div>
@@ -38,11 +42,13 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '@/stores/instances'
 import { BasicInfo, NetworkInfo, ResourceInfo } from '@/components/instance/detail/components'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
 import type { Instance } from '@/mock/types/instance'
 
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const instancesStore = useInstancesStore()
@@ -94,8 +100,8 @@ const handleDeleteConfirm = async (dontShowToday: boolean) => {
     }
     router.push({ name: 'instanceList' })
   } catch (error) {
-    alert('인스턴스를 삭제하는 중 오류가 발생했습니다.')
-    console.error('인스턴스 삭제 중 오류:', error)
+    alert(t('instance.detail.error.delete'))
+    console.error(t('instance.detail.error.deleteLog'), error)
   }
 }
 </script>

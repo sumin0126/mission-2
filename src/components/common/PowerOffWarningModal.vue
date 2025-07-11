@@ -58,11 +58,15 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
 defineProps<{
   modelValue: boolean
-  title: string
-  mainMessage: string
-  warningMessage: string
+  title?: string
+  mainMessage?: string
+  warningMessage?: string
   confirmText?: string
   cancelText?: string
 }>()

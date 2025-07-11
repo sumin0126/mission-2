@@ -6,7 +6,7 @@
     </div>
 
     <!-- 로딩 상태 -->
-    <div v-if="isLoading" class="loading-state">데이터를 불러오는 중...</div>
+    <div v-if="isLoading" class="loading-state">{{ t('instance.list.loading') }}</div>
 
     <!-- 인스턴스 테이블 -->
     <div v-else class="table-container">
@@ -22,18 +22,18 @@
                 :disabled="!instances.length"
               />
             </th>
-            <th>인스턴스</th>
-            <th>전원상태</th>
-            <th>CPU</th>
-            <th>메모리</th>
-            <th>디스크</th>
-            <th>IP 주소</th>
-            <th>전원관리</th>
+            <th>{{ t('instance.list.table.instance') }}</th>
+            <th>{{ t('instance.list.table.powerStatus') }}</th>
+            <th>{{ t('instance.list.table.cpu') }}</th>
+            <th>{{ t('instance.list.table.memory') }}</th>
+            <th>{{ t('instance.list.table.disk') }}</th>
+            <th>{{ t('instance.list.table.ipAddress') }}</th>
+            <th>{{ t('instance.list.table.powerManagement') }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="!instances.length">
-            <td colspan="8" class="no-data">인스턴스가 없습니다.</td>
+            <td colspan="8" class="no-data">{{ t('instance.list.table.noData') }}</td>
           </tr>
           <tr v-else v-for="instance in instances" :key="instance.id">
             <td class="checkbox-column">
@@ -71,6 +71,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Instance } from '@/mock/types/instance'
 import StatusBadge from './StatusBadge.vue'
 import PowerToggle from './PowerToggle.vue'
@@ -90,6 +91,8 @@ const emit = defineEmits<{
   (e: 'select', ids: string[]): void
   (e: 'togglePower', instance: Instance): void
 }>()
+
+const { t } = useI18n()
 
 // 현재 선택된 모든 인스턴스 ID들
 const selectedIds = ref<string[]>([])
@@ -156,6 +159,7 @@ const handlePowerToggle = (instance: Instance) => {
 
 .instance-table th:last-child {
   border-right: none;
+  padding: 12px 8px;
 }
 
 .instance-table td {
@@ -168,6 +172,7 @@ const handlePowerToggle = (instance: Instance) => {
 
 .instance-table td:last-child {
   border-right: none;
+  padding: 12px 8px;
 }
 
 .instance-table tbody tr:hover {
@@ -180,6 +185,8 @@ const handlePowerToggle = (instance: Instance) => {
 
 .checkbox-column {
   width: 60px;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .instance-link {
