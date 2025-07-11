@@ -14,17 +14,34 @@
         <!-- 인스턴스 이름 입력 -->
         <div class="form-group">
           <label>{{ t('instance.create.form.name.label') }}<span class="required">*</span></label>
-          <input
-            ref="nameInput"
-            type="text"
-            v-model="formData.name"
-            :placeholder="t('instance.create.form.name.placeholder')"
-            class="form-input"
-            :class="{ 'input-error': errors.name }"
-            @keydown.enter="handleEnter('name')"
-            @blur="validateField('name')"
-          />
+          <div class="name-input-group">
+            <input
+              ref="nameInput"
+              type="text"
+              v-model="formData.name"
+              :placeholder="t('instance.create.form.name.placeholder')"
+              class="form-input"
+              :class="{ 'input-error': errors.name || isDuplicate }"
+              @keydown.enter="handleEnter('name')"
+              @blur="validateField('name')"
+              @input="resetDuplicateCheck"
+            />
+            <!-- 중복 확인 버튼 -->
+            <button
+              class="btn btn-check"
+              :disabled="!formData.name.trim() || isCheckingDuplicate"
+              @click="checkDuplicateName"
+            >
+              {{ isCheckingDuplicate ? '확인 중...' : '중복 확인' }}
+            </button>
+          </div>
           <span v-if="errors.name" class="error-text">{{ errors.name }}</span>
+          <span v-else-if="isDuplicate" class="error-text"
+            >이미 사용 중인 인스턴스 이름입니다.</span
+          >
+          <span v-else-if="isNameChecked && !isDuplicate" class="success-text"
+            >사용 가능한 인스턴스 이름입니다.</span
+          >
         </div>
 
         <!-- 이미지 선택 -->
@@ -129,6 +146,7 @@ import InstancePreview from '@/components/InstancePreview.vue'
 import AlertModal from '@/components/common/AlertModal.vue'
 import type { Flavor } from '@/mock/types/flavor'
 import type { CreateInstanceRequest } from '@/mock/types/instance'
+import type { Instance } from '@/mock/types/instance'
 
 // 타입 정의
 type FormField = 'name' | 'image' | 'flavor' | 'network'
@@ -184,6 +202,52 @@ const errors = ref<FormErrors>({
   network: '',
 })
 
+// 중복 체크 관련 상태
+const isCheckingDuplicate = ref(false) // 중복 확인 중인지 여부
+const isDuplicate = ref(false) // 이름이 중복되는지 여부
+const isNameChecked = ref(false) // 중복 확인이 완료되었는지 여부
+
+// 중복 확인 함수
+const checkDuplicateName = async () => {
+  const trimmedName = formData.value.name.trim()
+  if (!trimmedName) return
+
+  isCheckingDuplicate.value = true
+  isDuplicate.value = false
+  isNameChecked.value = false
+  errors.value.name = '' // 에러 메시지 초기화
+
+  try {
+    // 중복 체크 시뮬레이션을 위한 지연
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    // 중복 체크
+    isDuplicate.value = instanceStore.instances.some(
+      (instance: Instance) => instance.name.toLowerCase() === trimmedName.toLowerCase()
+    )
+    isNameChecked.value = true
+
+    // 중복 체크 결과에 따른 에러 메시지 설정
+    if (isDuplicate.value) {
+      errors.value.name = '이미 사용 중인 인스턴스 이름입니다.'
+    }
+  } catch (error) {
+    console.error('인스턴스 이름 중복 확인 중 오류:', error)
+    errors.value.name = '중복 확인 중 오류가 발생했습니다.'
+  } finally {
+    isCheckingDuplicate.value = false
+  }
+}
+
+// 이름 입력 시 중복 확인 상태 초기화
+const resetDuplicateCheck = () => {
+  if (!isCheckingDuplicate.value) {
+    isDuplicate.value = false
+    isNameChecked.value = false
+    errors.value.name = '중복 확인이 필요합니다.'
+  }
+}
+
 // 폼 유효성 검사
 const isFormValid = computed(() => {
   return (
@@ -199,11 +263,25 @@ const updateFlavorDetail = (flavor: Flavor) => {
   formData.value.flavorDetail = flavor
 }
 
-// 필드 유효성 검사 함수
+// 기존 validateField 함수 수정
 const validateField = (field: FormField) => {
-  showInvalidPreview.value = false // 미리보기 박스 상태 초기화
+  showInvalidPreview.value = false
   const value = field === 'name' ? formData.value[field].trim() : formData.value[field]
-  errors.value[field] = value === '' ? VALIDATION_MESSAGES[field] : ''
+
+  if (field === 'name') {
+    if (!value) {
+      errors.value[field] = VALIDATION_MESSAGES[field]
+    } else if (isDuplicate.value) {
+      errors.value[field] = '이미 사용 중인 인스턴스 이름입니다.'
+    } else if (!isNameChecked.value) {
+      errors.value[field] = '중복 확인이 필요합니다.'
+    } else {
+      errors.value[field] = ''
+    }
+  } else {
+    errors.value[field] = value === '' ? VALIDATION_MESSAGES[field] : ''
+  }
+
   return errors.value[field] === ''
 }
 
@@ -227,6 +305,16 @@ const showSuccessModal = ref(false)
 const handleCreate = async () => {
   if (!validateForm()) {
     showInvalidPreview.value = true
+    return
+  }
+
+  // 중복 확인이 되지 않았거나 중복된 이름인 경우
+  if (!isNameChecked.value) {
+    errors.value.name = '중복 확인이 필요합니다.'
+    return
+  }
+  if (isDuplicate.value) {
+    errors.value.name = '이미 사용 중인 인스턴스 이름입니다.'
     return
   }
 
@@ -558,6 +646,44 @@ const handleCancel = () => {
   font-size: 12px;
 }
 
+.name-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.name-input-group .form-input {
+  flex: 1;
+}
+
+.btn-check {
+  background-color: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #262626;
+  height: 40px;
+  padding: 8px 16px;
+  white-space: nowrap;
+}
+
+.btn-check:hover {
+  border-color: #40a9ff;
+  color: #40a9ff;
+}
+
+.success-text {
+  display: block;
+  margin-top: 4px;
+  color: #52c41a;
+  font-size: 12px;
+}
+
+.btn-check:disabled {
+  background-color: #f5f5f5;
+  border-color: #d9d9d9;
+  color: #bfbfbf;
+  cursor: not-allowed;
+}
+
 /* 반응형 스타일 */
 /* 모바일 - 768px 이하 */
 @media (max-width: 768px) {
@@ -633,6 +759,15 @@ const handleCancel = () => {
   }
 
   .error-text {
+    font-size: 11px;
+  }
+
+  .btn-check {
+    height: 36px;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  .success-text {
     font-size: 11px;
   }
 }

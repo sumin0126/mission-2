@@ -73,6 +73,13 @@ export default {
         image: '이미지를 선택해주세요',
         flavor: 'Flavor를 선택해주세요',
         network: '네트워크를 선택해주세요',
+        name_duplicate: {
+          required: '중복 확인이 필요합니다',
+          checking: '중복 확인 중...',
+          available: '사용 가능한 인스턴스 이름입니다',
+          duplicate: '이미 사용 중인 인스턴스 이름입니다',
+          error: '중복 확인 중 오류가 발생했습니다',
+        },
       },
       button: {
         creating: '생성 중...',

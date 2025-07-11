@@ -76,15 +76,15 @@
     },
     {
       "id": "d366",
-      "name": "모달 테스트",
+      "name": "테스트-2",
       "flavor": "C1M2D20",
       "image": "ubuntu-2204-kube-v1.30.9",
       "network": "private-network",
       "cpu": 1,
       "memory": 2,
       "disk": 20,
-      "status": "SHUTDOWN",
-      "powerOn": false,
+      "status": "RUNNING",
+      "powerOn": true,
       "createdAt": "2025-07-10T14:16:07.107Z",
       "privateIp": "172.30.110.103"
     },
@@ -102,6 +102,21 @@
       "createdAt": "2025-07-11T01:39:29.843Z",
       "privateIp": "172.30.110.168",
       "publicIp": "203.0.113.76"
+    },
+    {
+      "id": "f4db",
+      "name": "테스트",
+      "flavor": "C1M2D20",
+      "image": "ubuntu-2204-kube-v1.30.9",
+      "network": "public-network",
+      "cpu": 1,
+      "memory": 2,
+      "disk": 20,
+      "status": "RUNNING",
+      "powerOn": true,
+      "createdAt": "2025-07-11T04:25:24.433Z",
+      "privateIp": "172.30.110.134",
+      "publicIp": "203.0.113.129"
     }
   ]
 }

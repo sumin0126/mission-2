@@ -8,12 +8,48 @@
       <div class="modal-body">
         <div class="form-group">
           <label>{{ t('instance.detail.editBasicInfo.name.label') }}</label>
-          <input
-            type="text"
-            v-model="formData.name"
-            class="form-input"
-            :placeholder="t('instance.detail.editBasicInfo.name.placeholder')"
-          />
+          <div class="input-container">
+            <input
+              type="text"
+              v-model="formData.name"
+              class="form-input"
+              :class="{ 'input-error': nameCheckMessage && !isNameChecked }"
+              :placeholder="t('instance.detail.editBasicInfo.name.placeholder')"
+            />
+            <!-- 중복 확인 버튼 -->
+            <button
+              class="check-button"
+              :class="{
+                checking: isCheckingDuplicate,
+                checked: isNameChecked && !isDuplicate,
+                error: isDuplicate,
+              }"
+              @click="checkDuplicateName"
+              :disabled="isCheckingDuplicate"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M8 12l3 3 6-6" />
+              </svg>
+            </button>
+          </div>
+          <span
+            v-if="nameCheckMessage"
+            class="validation-message"
+            :class="{ 'error-message': !isNameChecked || isDuplicate }"
+          >
+            {{ nameCheckMessage }}
+          </span>
         </div>
         <div class="form-group">
           <label>{{ t('instance.detail.editBasicInfo.power.label') }}</label>
@@ -57,8 +93,12 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Instance } from '@/mock/types/instance'
+import { useInstancesStore } from '@/stores/instances'
+import { delay } from '@/mock/utils/delay'
 
 const { t } = useI18n()
+const instanceStore = useInstancesStore()
+
 const props = defineProps<{
   isOpen: boolean
   instance: Instance
@@ -74,6 +114,71 @@ const formData = ref({
   name: props.instance.name,
   power: props.instance.status === 'RUNNING' ? 'on' : 'off',
 })
+
+// 중복 체크 관련 상태
+const isCheckingDuplicate = ref(false)
+const isDuplicate = ref(false)
+const isNameChecked = ref(false)
+const nameCheckMessage = ref('')
+
+// 이름이 변경되면 중복 체크 상태 초기화
+const resetDuplicateCheck = () => {
+  if (!isCheckingDuplicate.value) {
+    isDuplicate.value = false
+    isNameChecked.value = false
+    nameCheckMessage.value = t('instance.create.validation.name_duplicate.required')
+  }
+}
+
+// 이름이 변경되면 중복 체크 상태 초기화
+watch(
+  () => formData.value.name,
+  () => {
+    if (formData.value.name !== props.instance.name) {
+      resetDuplicateCheck()
+    } else {
+      nameCheckMessage.value = ''
+    }
+  }
+)
+
+// 중복 체크 함수
+const checkDuplicateName = async () => {
+  if (!formData.value.name) {
+    nameCheckMessage.value = t('instance.create.validation.name')
+    return
+  }
+
+  isCheckingDuplicate.value = true
+  isNameChecked.value = false
+  isDuplicate.value = false
+  nameCheckMessage.value = t('instance.create.validation.name_duplicate.checking')
+
+  try {
+    await delay(500) // API 호출을 시뮬레이션하기 위한 지연
+    const trimmedName = formData.value.name.trim().toLowerCase()
+
+    // 현재 편집 중인 인스턴스의 원래 이름과 같으면 중복 아님
+    if (trimmedName === props.instance.name.trim().toLowerCase()) {
+      isDuplicate.value = false
+    } else {
+      // 다른 이름으로 변경하는 경우에만 중복 체크
+      isDuplicate.value = instanceStore.instances.some(
+        (instance: Instance) => instance.name.trim().toLowerCase() === trimmedName
+      )
+    }
+
+    isNameChecked.value = true
+    nameCheckMessage.value = isDuplicate.value
+      ? t('instance.create.validation.name_duplicate.duplicate')
+      : t('instance.create.validation.name_duplicate.available')
+  } catch (error) {
+    console.error('중복 체크 중 오류:', error)
+    nameCheckMessage.value = t('instance.create.validation.name_duplicate.error')
+  } finally {
+    isCheckingDuplicate.value = false
+  }
+}
 
 // 모달이 열릴 때마다 최신 instance 데이터로 formData 초기화
 watch(
@@ -107,7 +212,18 @@ const handleClose = () => {
   emit('close')
 }
 
-const handleSave = () => {
+const handleSave = async () => {
+  // 이름이 변경되었고 중복 체크가 되지 않았다면 저장 불가
+  if (formData.value.name !== props.instance.name && !isNameChecked.value) {
+    nameCheckMessage.value = t('instance.create.validation.name_duplicate.required')
+    return
+  }
+
+  // 중복된 이름이면 저장 불가
+  if (isDuplicate.value) {
+    return
+  }
+
   emit('save', formData.value)
 }
 
@@ -199,6 +315,11 @@ onUnmounted(() => {
   font-size: 14px;
 }
 
+.input-container {
+  position: relative;
+  width: 100%;
+}
+
 .form-input {
   width: 100%;
   padding: 8px 12px;
@@ -207,12 +328,76 @@ onUnmounted(() => {
   font-size: 14px;
   color: #595959;
   height: 40px;
+  padding-right: 40px;
 }
 
 .form-input:focus {
   border-color: #1890ff;
   outline: none;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.check-button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #8c8c8c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  width: 20px;
+  height: 20px;
+}
+
+.check-button:hover {
+  color: #1890ff;
+}
+
+.check-button:disabled:hover {
+  color: #8c8c8c;
+}
+
+.check-button.checking {
+  animation: rotate 1s linear infinite;
+}
+
+.check-button.checked {
+  color: #52c41a;
+}
+
+.check-button.error {
+  color: #ff4d4f;
+}
+
+.check-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@keyframes rotate {
+  from {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+.validation-message {
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+  color: #52c41a;
+}
+
+.error-message {
+  color: #ff4d4f;
 }
 
 .select-container {
@@ -250,7 +435,7 @@ onUnmounted(() => {
   display: inline-block;
   padding: 3px;
   transform: rotate(45deg);
-  margin-left: 8px;
+  margin-right: 8px;
   transition: transform 0.2s;
 }
 
@@ -356,5 +541,14 @@ onUnmounted(() => {
     height: 36px;
     font-size: 13px;
   }
+}
+
+.input-error {
+  border-color: #ff4d4f !important;
+}
+
+.input-error:focus {
+  border-color: #ff4d4f !important;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.1) !important;
 }
 </style>

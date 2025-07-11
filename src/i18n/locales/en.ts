@@ -73,6 +73,13 @@ export default {
         image: 'Please select an image',
         flavor: 'Please select a flavor',
         network: 'Please select a network',
+        name_duplicate: {
+          required: 'Duplicate check is required',
+          checking: 'Checking for duplicates...',
+          available: 'This instance name is available',
+          duplicate: 'This instance name is already in use',
+          error: 'An error occurred while checking for duplicates',
+        },
       },
       button: {
         creating: 'Creating...',
