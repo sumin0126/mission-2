@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import AppHeader from '@/components/AppHeader.vue'
-import AppBreadcrumb from '@/components/AppBreadcrumb.vue'
+import AppHeader from '@/components/common/AppHeader.vue'
+import AppBreadcrumb from '@/components/common/AppBreadcrumb.vue'
+import AppLoadingSpinner from '@/components/common/AppLoadingSpinner.vue'
+import { useLoadingStore } from '@/stores/loading'
+
+const loadingStore = useLoadingStore()
 </script>
 
 <template>
-  <div id="app">
-    <AppHeader />
-    <AppBreadcrumb />
-    <main class="main-content">
-      <RouterView />
-    </main>
-  </div>
+  <AppLoadingSpinner :is-visible="loadingStore.isLoading" />
+  <AppHeader />
+  <AppBreadcrumb />
+  <main class="main-content">
+    <RouterView />
+  </main>
 </template>
 
 <style scoped>

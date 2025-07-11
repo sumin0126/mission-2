@@ -2,7 +2,7 @@ import { createI18n } from 'vue-i18n'
 import ko from './locales/ko'
 import en from './locales/en'
 
-// 브라우저 언어 감지 함수 (내부 사용)
+// 브라우저 자체 언어 감지 함수 (내부 사용)
 const getBrowserLanguage = (): string => {
   const language = navigator.language.toLowerCase()
 
@@ -31,7 +31,7 @@ const messages = {
 const i18n = createI18n({
   legacy: false, // Composition API 사용
   locale: getStoredLanguage(), // 기본 언어 설정
-  fallbackLocale: 'ko', // 폴백 언어
+  fallbackLocale: 'ko', // 백업 언어 (번역이 없을 때 대신 사용할 언어)
   messages,
   globalInjection: true, // 전역 주입 활성화
 })
