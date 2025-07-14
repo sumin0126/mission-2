@@ -133,7 +133,7 @@ export const useInstancesStore = defineStore('instances', () => {
               data.publicIp = publicIp
             } else {
               // public -> private: 외부 IP 제거
-              data.publicIp = null
+              data.publicIp = undefined
             }
           }
         }
