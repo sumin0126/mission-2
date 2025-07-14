@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>mission-2</title>
+    <script type="text/javascript">
+      // GitHub Pages의 SPA Hack
+      ;(function () {
+        const segments = location.pathname.slice(1).split('/')
+        const repo = segments[0]
+        const path = '/' + segments.slice(1).join('/')
+
+        sessionStorage.setItem('redirect', path)
+        location.replace(`/${repo}`)
+      })()
+    </script>
+  </head>
+  <body></body>
+</html>
