@@ -46,7 +46,7 @@ export interface UpdateInstanceRequest {
   cpu?: number
   memory?: number
   disk?: number
-  publicIp?: string | null | undefined
+  publicIp?: string
 }
 
 // 전원 상태 요청 타입

@@ -1,0 +1,58 @@
+{
+  "instances": [
+    {
+      "id": "i-123456789",
+      "name": "test-instance-1",
+      "status": "ACTIVE",
+      "flavor": {
+        "id": "m2.large",
+        "name": "m2.large",
+        "vcpus": 2,
+        "ram": 4,
+        "disk": 100
+      },
+      "image": {
+        "id": "ubuntu-20.04",
+        "name": "Ubuntu 20.04 LTS",
+        "description": "Ubuntu 20.04 LTS"
+      },
+      "networks": [
+        {
+          "id": "net-123456789",
+          "name": "public-net",
+          "type": "PUBLIC",
+          "ip": "192.168.0.100"
+        }
+      ],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "i-987654321",
+      "name": "test-instance-2",
+      "status": "STOPPED",
+      "flavor": {
+        "id": "m2.xlarge",
+        "name": "m2.xlarge",
+        "vcpus": 4,
+        "ram": 8,
+        "disk": 200
+      },
+      "image": {
+        "id": "centos-7",
+        "name": "CentOS 7",
+        "description": "CentOS 7"
+      },
+      "networks": [
+        {
+          "id": "net-987654321",
+          "name": "private-net",
+          "type": "PRIVATE",
+          "ip": "10.0.0.100"
+        }
+      ],
+      "createdAt": "2024-01-02T00:00:00.000Z",
+      "updatedAt": "2024-01-02T00:00:00.000Z"
+    }
+  ]
+}

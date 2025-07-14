@@ -7,34 +7,121 @@ import type {
 import type { AxiosResponse } from 'axios'
 import { instancesAxios } from './index'
 
+// 로컬 스토리지 키
+const INSTANCES_STORAGE_KEY = 'instances'
+
+// 로컬 스토리지에서 인스턴스 데이터 가져오기
+const getStoredInstances = (): Instance[] => {
+  const stored = localStorage.getItem(INSTANCES_STORAGE_KEY)
+  return stored ? JSON.parse(stored) : []
+}
+
+// 로컬 스토리지에 인스턴스 데이터 저장
+const setStoredInstances = (instances: Instance[]) => {
+  localStorage.setItem(INSTANCES_STORAGE_KEY, JSON.stringify(instances))
+}
+
 // 인스턴스 목록 조회
-export const fetchInstances = (): Promise<AxiosResponse<Instance[]>> => {
-  return instancesAxios.get('/instances')
+export const fetchInstances = async (): Promise<AxiosResponse<Instance[]>> => {
+  const stored = getStoredInstances()
+  if (stored.length > 0) {
+    return Promise.resolve({
+      data: stored,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any,
+    })
+  }
+
+  const response = await instancesAxios.get('/instances.json')
+  const instances = response.data.instances
+  setStoredInstances(instances)
+  return {
+    data: instances,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: {} as any,
+  }
 }
 
 // 인스턴스 단일 조회
 export const fetchInstance = (id: string): Promise<AxiosResponse<Instance>> => {
-  return instancesAxios.get(`/instances/${id}`)
+  const instances = getStoredInstances()
+  const instance = instances.find((i) => i.id === id)
+  if (!instance) {
+    return Promise.reject(new Error('Instance not found'))
+  }
+  return Promise.resolve({
+    data: instance,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: {} as any,
+  })
 }
 
 // 인스턴스 생성
 export const fetchCreateInstance = (
   data: CreateInstanceRequest
 ): Promise<AxiosResponse<Instance>> => {
-  return instancesAxios.post('/instances', data)
+  const instances = getStoredInstances()
+  const newInstance: Instance = {
+    ...data,
+    id: `i-${Date.now()}`,
+    status: 'RUNNING',
+    createdAt: new Date().toISOString(),
+  }
+  instances.push(newInstance)
+  setStoredInstances(instances)
+  return Promise.resolve({
+    data: newInstance,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: {} as any,
+  })
 }
 
 // 인스턴스 수정
 export const fetchUpdateInstance = (
   id: string,
-  data: UpdateInstanceRequest
+  data: UpdateInstanceRequest | PowerUpdateRequest
 ): Promise<AxiosResponse<Instance>> => {
-  return instancesAxios.patch(`/instances/${id}`, data)
+  const instances = getStoredInstances()
+  const index = instances.findIndex((i) => i.id === id)
+  if (index === -1) {
+    return Promise.reject(new Error('Instance not found'))
+  }
+
+  const updatedInstance: Instance = {
+    ...instances[index],
+    ...data,
+  }
+  instances[index] = updatedInstance
+  setStoredInstances(instances)
+  return Promise.resolve({
+    data: updatedInstance,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: {} as any,
+  })
 }
 
 // 인스턴스 삭제
 export const fetchDeleteInstance = (id: string): Promise<AxiosResponse<void>> => {
-  return instancesAxios.delete(`/instances/${id}`)
+  const instances = getStoredInstances()
+  const filtered = instances.filter((i) => i.id !== id)
+  setStoredInstances(filtered)
+  return Promise.resolve({
+    data: undefined,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: {} as any,
+  })
 }
 
 // 인스턴스 전원 제어
@@ -42,5 +129,5 @@ export const fetchToggleInstancePower = (
   id: string,
   data: PowerUpdateRequest
 ): Promise<AxiosResponse<Instance>> => {
-  return instancesAxios.patch(`/instances/${id}`, data)
+  return fetchUpdateInstance(id, data)
 }

@@ -2,7 +2,7 @@ import axios, { type AxiosInstance, type CreateAxiosDefaults } from 'axios'
 
 const create = (options?: CreateAxiosDefaults): AxiosInstance => {
   const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
+    baseURL: '/mission-2/data', // GitHub Pages의 base URL에 맞춰 수정
     timeout: Number(import.meta.env.VITE_API_TIMEOUT),
     ...options,
   })
