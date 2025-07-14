@@ -5,7 +5,7 @@ import InstanceCreateView from '@/views/InstanceCreateView.vue'
 import InstanceDetailView from '@/views/InstanceDetailView.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory('/mission-2/'),
   routes: [
     {
       path: '/',
