@@ -1,31 +1,32 @@
 {
   "instances": [
     {
-      "id": "i-123456789",
+      "id": "inst-001",
       "name": "test-instance-1",
       "status": "RUNNING",
-      "image": "Ubuntu 20.04 LTS",
-      "flavor": "m2.large",
+      "flavor": "C2M4D40",
+      "image": "ubuntu-2204-kube-v1.30.9",
+      "network": "public-network",
       "cpu": 2,
       "memory": 4,
-      "disk": 100,
-      "network": "public-net",
+      "disk": 40,
       "privateIp": "172.30.110.100",
       "publicIp": "203.0.113.100",
       "powerOn": true,
       "createdAt": "2024-01-01T00:00:00.000Z"
     },
     {
-      "id": "i-987654321",
+      "id": "inst-002",
       "name": "test-instance-2",
       "status": "SHUTDOWN",
-      "image": "CentOS 7",
-      "flavor": "m2.xlarge",
+      "flavor": "C4M8D80",
+      "image": "ubuntu-2204-kube-v1.29.7",
+      "network": "private-network",
       "cpu": 4,
       "memory": 8,
-      "disk": 200,
-      "network": "private-net",
+      "disk": 80,
       "privateIp": "172.30.110.101",
+      "publicIp": null,
       "powerOn": false,
       "createdAt": "2024-01-02T00:00:00.000Z"
     }

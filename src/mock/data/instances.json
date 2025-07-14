@@ -5,7 +5,7 @@
       "name": "web-server-prod-1",
       "status": "RUNNING",
       "flavor": "C8M16D160",
-      "image": "ubuntu-2204-kube-v1.30.14",
+      "image": "ubuntu-2204-kube-v1.28.5",
       "network": "public-network",
       "cpu": 8,
       "memory": 16,
@@ -20,7 +20,7 @@
       "name": "db-server-1g",
       "status": "SHUTDOWN",
       "flavor": "C8M16D160",
-      "image": "ubuntu-2204-kube-v1.31.10",
+      "image": "ubuntu-2204-kube-v1.29.7",
       "network": "private-network",
       "cpu": 8,
       "memory": 16,
@@ -35,7 +35,7 @@
       "name": "monitoring-server",
       "status": "RUNNING",
       "flavor": "C4M8D80",
-      "image": "ubuntu-2204-kube-v1.31.10",
+      "image": "ubuntu-2204-kube-v1.30.9",
       "network": "public-network",
       "cpu": 4,
       "memory": 8,
@@ -56,7 +56,7 @@
       "disk": 40,
       "status": "RUNNING",
       "powerOn": true,
-      "createdAt": "2025-07-11T01:39:29.843Z",
+      "createdAt": "2024-03-11T01:39:29.843Z",
       "privateIp": "172.30.110.168",
       "publicIp": "203.0.113.76"
     },
@@ -71,7 +71,7 @@
       "disk": 20,
       "status": "SHUTDOWN",
       "powerOn": false,
-      "createdAt": "2025-07-11T04:25:24.433Z",
+      "createdAt": "2024-03-11T04:25:24.433Z",
       "privateIp": "172.30.110.134",
       "publicIp": "203.0.113.129"
     },
@@ -86,7 +86,7 @@
       "disk": 20,
       "status": "SHUTDOWN",
       "powerOn": false,
-      "createdAt": "2025-07-11T05:43:40.102Z",
+      "createdAt": "2024-03-11T05:43:40.102Z",
       "privateIp": "172.30.110.177",
       "publicIp": null
     }
