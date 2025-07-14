@@ -1,3 +1,4 @@
+// Pinia, Router, I18n 설정
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import i18n from '@/i18n'

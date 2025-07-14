@@ -1,5 +1,3 @@
-import type { Network } from '../types/network'
-
 export const mockNetworks = [
   {
     name: 'private-network',
