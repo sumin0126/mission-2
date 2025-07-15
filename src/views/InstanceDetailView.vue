@@ -107,15 +107,11 @@ const handleDelete = async () => {
 // 삭제 확인 버튼 클릭 시
 const handleDeleteConfirm = async (dontShowToday: boolean) => {
   try {
-    await loadingStore.withLoading(
-      async () => {
-        await instancesStore.deleteInstance(instance.value!.id)
-        // 삭제 후 목록 데이터 업데이트 (로딩 없이)
-        await instancesStore.getInstances()
-      },
-      500, // 최소 0.5초
-      2000 // 최대 2초
-    )
+    await loadingStore.withLoading(async () => {
+      await instancesStore.deleteInstance(instance.value!.id)
+      // 삭제 후 목록 데이터 업데이트 (로딩 없이)
+      await instancesStore.getInstances()
+    })
 
     if (dontShowToday) {
       localStorage.setItem('dontShowDeleteConfirm', new Date().toDateString())

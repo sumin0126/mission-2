@@ -136,13 +136,9 @@ const handlePowerToggle = (instance: Instance) => {
 // 인스턴스 상세 페이지로 이동
 const navigateToDetail = async (instanceId: string) => {
   try {
-    await loadingStore.withLoading(
-      async () => {
-        await router.push({ name: 'instanceDetail', params: { id: instanceId } })
-      },
-      500, // 최소 0.5초
-      2000 // 최대 2초
-    )
+    await loadingStore.withLoading(async () => {
+      await router.push({ name: 'instanceDetail', params: { id: instanceId } })
+    })
   } catch (error) {
     console.error('상세 페이지 이동 실패:', error)
   }

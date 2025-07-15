@@ -342,28 +342,24 @@ const handleCreate = async () => {
 
   try {
     // 생성 작업 시에만 로딩 표시
-    await loadingStore.withLoading(
-      async () => {
-        const result = await instanceStore.createInstance({
-          name: formData.value.name,
-          flavor: formData.value.flavor,
-          image: formData.value.image,
-          network: formData.value.network,
-          cpu: formData.value.flavorDetail.cpu,
-          memory: formData.value.flavorDetail.memory,
-          disk: formData.value.flavorDetail.disk,
-          status: 'RUNNING',
-          powerOn: true,
-          createdAt: new Date().toISOString(),
-        })
+    await loadingStore.withLoading(async () => {
+      const result = await instanceStore.createInstance({
+        name: formData.value.name,
+        flavor: formData.value.flavor,
+        image: formData.value.image,
+        network: formData.value.network,
+        cpu: formData.value.flavorDetail.cpu,
+        memory: formData.value.flavorDetail.memory,
+        disk: formData.value.flavorDetail.disk,
+        status: 'RUNNING',
+        powerOn: true,
+        createdAt: new Date().toISOString(),
+      })
 
-        // 생성 성공 후 바로 목록 데이터 업데이트 (로딩 없이)
-        await instanceStore.getInstances()
-        return result
-      },
-      500, // 최소 0.5초
-      2000 // 최대 2초
-    )
+      // 생성 성공 후 바로 목록 데이터 업데이트 (로딩 없이)
+      await instanceStore.getInstances()
+      return result
+    })
 
     // 오늘 하루 보지 않기 설정 확인
     const dontShowDate = localStorage.getItem('dontShowCreateSuccess')

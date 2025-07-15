@@ -47,13 +47,9 @@ const handleClick = async () => {
   // 전원을 켤 때는 로딩 스피너와 함께 바로 실행
   if (!props.isRunning) {
     try {
-      await loadingStore.withLoading(
-        async () => {
-          emit('toggle')
-        },
-        500, // 최소 0.5초
-        2000 // 최대 2초
-      )
+      await loadingStore.withLoading(async () => {
+        emit('toggle')
+      })
     } catch (error) {
       console.error('전원 켜기 실패:', error)
     }
@@ -68,13 +64,9 @@ const handleConfirm = async () => {
   showWarningModal.value = false
 
   try {
-    await loadingStore.withLoading(
-      async () => {
-        emit('toggle')
-      },
-      500, // 최소 0.5초
-      2000 // 최대 2초
-    )
+    await loadingStore.withLoading(async () => {
+      emit('toggle')
+    })
   } catch (error) {
     console.error('전원 끄기 실패:', error)
   }

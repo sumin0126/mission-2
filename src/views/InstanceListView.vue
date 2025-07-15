@@ -68,11 +68,7 @@ onMounted(async () => {
   }
 
   try {
-    await loadingStore.withLoading(
-      () => instanceStore.getInstances(),
-      500, // 최소 0.5초
-      2000 // 최대 2초
-    )
+    await loadingStore.withLoading(() => instanceStore.getInstances())
   } catch (error) {
     console.error('인스턴스 목록 로드 실패:', error)
   }
@@ -115,24 +111,20 @@ const deleteSelectedInstances = () => {
 // 삭제 확인 시
 const handleDeleteConfirm = async (dontShowToday: boolean) => {
   try {
-    await loadingStore.withLoading(
-      async () => {
-        // 순차적으로 삭제 처리
-        for (const id of selectedInstanceIds.value) {
-          await instanceStore.deleteInstance(id)
-        }
-        selectedInstanceIds.value = []
-        // 삭제 후 목록 갱신
-        await instanceStore.getInstances()
+    await loadingStore.withLoading(async () => {
+      // 순차적으로 삭제 처리
+      for (const id of selectedInstanceIds.value) {
+        await instanceStore.deleteInstance(id)
+      }
+      selectedInstanceIds.value = []
+      // 삭제 후 목록 갱신
+      await instanceStore.getInstances()
 
-        // 오늘 하루 보지 않기 설정 저장
-        if (dontShowToday) {
-          localStorage.setItem('dontShowDeleteConfirm', new Date().toDateString())
-        }
-      },
-      500, // 최소 0.5초
-      2000 // 최대 2초
-    )
+      // 오늘 하루 보지 않기 설정 저장
+      if (dontShowToday) {
+        localStorage.setItem('dontShowDeleteConfirm', new Date().toDateString())
+      }
+    })
   } catch (error) {
     console.error('인스턴스 삭제 실패:', error)
   }

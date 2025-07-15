@@ -115,13 +115,9 @@ const handleSave = async () => {
   emit('close')
 
   try {
-    await loadingStore.withLoading(
-      async () => {
-        emit('save', dataToSave)
-      },
-      500, // 최소 0.5초
-      2000 // 최대 2초
-    )
+    await loadingStore.withLoading(async () => {
+      emit('save', dataToSave)
+    })
   } catch (error) {
     console.error('저장 중 오류 발생:', error)
   }
