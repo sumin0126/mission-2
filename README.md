@@ -1,5 +1,3 @@
-
-
 ## 주요 기능
 
 - 인스턴스 관리
@@ -28,7 +26,7 @@
   - ESLint
   - Prettier
   - Vitest
- 
+
 <br/>
 
 ## 프로젝트 구조
@@ -74,6 +72,32 @@ cd mission-2
 ```bash
 pnpm install
 ```
+
+<br/>
+
+### 환경 변수 설정
+
+1. 프로젝트 루트에 `.env` 파일 생성
+
+```bash
+# Application
+VITE_APP_TITLE=Instance Manager
+VITE_API_BASE_URL=http://localhost:3000  # 개발 환경의 Mock API 서버 주소
+VITE_API_TIMEOUT=5000
+
+# Instance Settings
+VITE_DEFAULT_INSTANCE_REGION=kr-central-1
+VITE_MAX_INSTANCES_PER_USER=10
+```
+
+2. 환경 변수 설명:
+   - `VITE_APP_TITLE`: 애플리케이션 제목
+   - `VITE_API_BASE_URL`:
+     - 개발 환경: Mock API 서버 주소 (기본값: http://localhost:3000)
+     - 배포 환경: 자동으로 정적 데이터 경로 사용 (/mission-2/data)
+   - `VITE_API_TIMEOUT`: API 요청 타임아웃
+   - `VITE_DEFAULT_INSTANCE_REGION`: 기본 인스턴스 리전
+   - `VITE_MAX_INSTANCES_PER_USER`: 사용자당 최대 인스턴스 수
 
 ### 실행 방법
 
