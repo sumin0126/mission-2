@@ -40,12 +40,12 @@
             </button>
           </div>
           <span v-if="errors.name" class="error-text">{{ errors.name }}</span>
-          <span v-else-if="isDuplicate" class="error-text"
-            >이미 사용 중인 인스턴스 이름입니다.</span
-          >
-          <span v-else-if="isNameChecked && !isDuplicate" class="success-text"
-            >사용 가능한 인스턴스 이름입니다.</span
-          >
+          <span v-else-if="isDuplicate" class="error-text">{{
+            t('instance.create.validation.name_duplicate.duplicate')
+          }}</span>
+          <span v-else-if="isNameChecked && !isDuplicate" class="success-text">{{
+            t('instance.create.validation.name_duplicate.available')
+          }}</span>
         </div>
 
         <!-- 이미지 선택 -->
@@ -158,7 +158,6 @@ import { useLoadingStore } from '@/stores/loading'
 import InstancePreview from '@/components/InstancePreview.vue'
 import AppAlertModal from '@/components/common/AppAlertModal.vue'
 import type { Flavor } from '@/mock/types/flavor'
-import type { CreateInstanceRequest } from '@/mock/types/instance'
 import type { Instance } from '@/mock/types/instance'
 
 // 타입 정의
@@ -252,11 +251,11 @@ const checkDuplicateName = async () => {
 
     // 중복 체크 결과에 따른 에러 메시지 설정
     if (isDuplicate.value) {
-      errors.value.name = '이미 사용 중인 인스턴스 이름입니다.'
+      errors.value.name = t('instance.create.validation.name_duplicate.duplicate')
     }
   } catch (error) {
-    console.error('인스턴스 이름 중복 확인 중 오류:', error)
-    errors.value.name = '중복 확인 중 오류가 발생했습니다.'
+    console.error(t('instance.detail.error.updateLog'), error)
+    errors.value.name = t('instance.create.validation.name_duplicate.error')
   } finally {
     isCheckingDuplicate.value = false
   }
@@ -267,7 +266,7 @@ const resetDuplicateCheck = () => {
   if (!isCheckingDuplicate.value) {
     isDuplicate.value = false
     isNameChecked.value = false
-    errors.value.name = '중복 확인이 필요합니다.'
+    errors.value.name = t('instance.create.validation.name_duplicate.required')
   }
 }
 
@@ -295,9 +294,9 @@ const validateField = (field: FormField) => {
     if (!value) {
       errors.value[field] = VALIDATION_MESSAGES[field]
     } else if (isDuplicate.value) {
-      errors.value[field] = '이미 사용 중인 인스턴스 이름입니다.'
+      errors.value[field] = t('instance.create.validation.name_duplicate.duplicate')
     } else if (!isNameChecked.value) {
-      errors.value[field] = '중복 확인이 필요합니다.'
+      errors.value[field] = t('instance.create.validation.name_duplicate.required')
     } else {
       errors.value[field] = ''
     }
@@ -333,11 +332,11 @@ const handleCreate = async () => {
 
   // 중복 확인이 되지 않았거나 중복된 이름인 경우
   if (!isNameChecked.value) {
-    errors.value.name = '중복 확인이 필요합니다.'
+    errors.value.name = t('instance.create.validation.name_duplicate.required')
     return
   }
   if (isDuplicate.value) {
-    errors.value.name = '이미 사용 중인 인스턴스 이름입니다.'
+    errors.value.name = t('instance.create.validation.name_duplicate.duplicate')
     return
   }
 
@@ -378,9 +377,9 @@ const handleCreate = async () => {
       showSuccessModal.value = true
     }
   } catch (error) {
-    errorMessage.value = '인스턴스를 생성하는 중 오류가 발생했습니다.'
+    errorMessage.value = t('instance.detail.error.update')
     showErrorModal.value = true
-    console.error('인스턴스 생성 중 오류:', error)
+    console.error(t('instance.detail.error.updateLog'), error)
   }
 }
 
