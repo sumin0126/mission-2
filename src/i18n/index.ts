@@ -54,7 +54,7 @@ export const setLanguage = (locale: SupportedLocale) => {
 
 // 현재 언어 가져오기
 export const getCurrentLanguage = (): SupportedLocale => {
-  return i18n.global.locale.value as SupportedLocale
+  return i18n.global.locale.value
 }
 
 // 현재 언어 정보 가져오기 (국기, 이름 포함)
