@@ -36,6 +36,14 @@
       :cancel-text="t('common.button.cancel')"
       @confirm="handleDeleteConfirm"
     />
+
+    <!-- 에러 모달 -->
+    <AppAlertModal
+      v-model="showErrorModal"
+      :title="t('common.modal.error')"
+      :message="errorMessage"
+      @confirm="handleErrorModalClose"
+    />
   </div>
 </template>
 
@@ -47,6 +55,7 @@ import { useInstancesStore } from '@/stores/instances'
 import { useLoadingStore } from '@/stores/loading'
 import { BasicInfo, NetworkInfo, ResourceInfo } from '@/components/instance/detail/components'
 import AppConfirmModal from '@/components/common/AppConfirmModal.vue'
+import AppAlertModal from '@/components/common/AppAlertModal.vue'
 import type { Instance } from '@/mock/types/instance'
 
 const { t } = useI18n()
@@ -56,6 +65,8 @@ const instancesStore = useInstancesStore()
 const loadingStore = useLoadingStore()
 const instance = ref<Instance | null>(null)
 const showDeleteModal = ref(false)
+const showErrorModal = ref(false)
+const errorMessage = ref('')
 
 // 컴포넌트 마운트 시 인스턴스 상세 정보 로드
 onMounted(async () => {
@@ -111,9 +122,15 @@ const handleDeleteConfirm = async (dontShowToday: boolean) => {
     }
     router.push({ name: 'instanceList' })
   } catch (error) {
-    alert(t('instance.detail.error.delete'))
     console.error(t('instance.detail.error.deleteLog'), error)
+    errorMessage.value = t('instance.detail.error.delete')
+    showErrorModal.value = true
   }
+}
+
+// 에러 모달 닫기
+const handleErrorModalClose = () => {
+  showErrorModal.value = false
 }
 </script>
 

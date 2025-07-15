@@ -29,6 +29,14 @@
       @close="closeModal"
       @save="handleSave"
     />
+
+    <!-- 에러 모달 -->
+    <AppAlertModal
+      v-model="showErrorModal"
+      :title="t('common.modal.error')"
+      :message="errorMessage"
+      @confirm="handleErrorModalClose"
+    />
   </div>
 </template>
 
@@ -40,6 +48,7 @@ import type { Network } from '@/mock/types/network'
 import { EditNetworkInfoModal } from '../modals'
 import { useInstancesStore } from '@/stores/instances'
 import { mockNetworks } from '@/mock/data/networks'
+import AppAlertModal from '@/components/common/AppAlertModal.vue'
 
 const { t } = useI18n()
 const props = defineProps<{
@@ -48,6 +57,8 @@ const props = defineProps<{
 
 const instancesStore = useInstancesStore()
 const isModalOpen = ref(false)
+const showErrorModal = ref(false)
+const errorMessage = ref('')
 
 // 스토어에서 최신 인스턴스 데이터 가져오기
 const currentInstance = computed(() => {
@@ -80,8 +91,14 @@ const handleSave = async (data: { network: string }) => {
     closeModal()
   } catch (error) {
     console.error(t('instance.detail.networkInfo.error.updateLog'), error)
-    alert(t('instance.detail.networkInfo.error.update'))
+    errorMessage.value = t('instance.detail.networkInfo.error.update')
+    showErrorModal.value = true
   }
+}
+
+// 에러 모달 닫기
+const handleErrorModalClose = () => {
+  showErrorModal.value = false
 }
 </script>
 

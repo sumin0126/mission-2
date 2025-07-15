@@ -35,6 +35,14 @@
       @close="closeModal"
       @save="handleSave"
     />
+
+    <!-- 에러 모달 -->
+    <AppAlertModal
+      v-model="showErrorModal"
+      :title="t('common.modal.error')"
+      :message="errorMessage"
+      @confirm="handleErrorModalClose"
+    />
   </div>
 </template>
 
@@ -44,6 +52,7 @@ import { useI18n } from 'vue-i18n'
 import type { Instance } from '@/mock/types/instance'
 import { EditResourceInfoModal } from '../modals'
 import { useInstancesStore } from '@/stores/instances'
+import AppAlertModal from '@/components/common/AppAlertModal.vue'
 import { mockFlavors } from '@/mock/data/flavors'
 
 const { t } = useI18n()
@@ -53,6 +62,8 @@ const props = defineProps<{
 
 const instancesStore = useInstancesStore()
 const isModalOpen = ref(false)
+const showErrorModal = ref(false)
+const errorMessage = ref('')
 
 // 스토어에서 최신 인스턴스 데이터 가져오기
 const currentInstance = computed(() => {
@@ -94,8 +105,14 @@ const handleSave = async (data: { flavor: string }) => {
     closeModal()
   } catch (error) {
     console.error(t('instance.detail.resourceInfo.error.updateLog'), error)
-    alert(t('instance.detail.resourceInfo.error.update'))
+    errorMessage.value = t('instance.detail.resourceInfo.error.update')
+    showErrorModal.value = true
   }
+}
+
+// 에러 모달 닫기
+const handleErrorModalClose = () => {
+  showErrorModal.value = false
 }
 </script>
 

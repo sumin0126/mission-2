@@ -135,6 +135,14 @@
       :show-dont-show-option="true"
       @confirm="handleSuccessConfirm"
     />
+
+    <!-- 에러 모달 -->
+    <AppAlertModal
+      v-model="showErrorModal"
+      :title="t('common.modal.error')"
+      :message="errorMessage"
+      @confirm="handleErrorModalClose"
+    />
   </div>
 </template>
 
@@ -168,6 +176,15 @@ const router = useRouter()
 const instanceStore = useInstancesStore()
 const loadingStore = useLoadingStore()
 const { t } = useI18n()
+
+// 에러 모달 상태
+const showErrorModal = ref(false)
+const errorMessage = ref('')
+
+// 에러 모달 닫기
+const handleErrorModalClose = () => {
+  showErrorModal.value = false
+}
 
 // 상수 정의
 const VALIDATION_MESSAGES = {
@@ -361,7 +378,8 @@ const handleCreate = async () => {
       showSuccessModal.value = true
     }
   } catch (error) {
-    alert('인스턴스를 생성하는 중 오류가 발생했습니다.')
+    errorMessage.value = '인스턴스를 생성하는 중 오류가 발생했습니다.'
+    showErrorModal.value = true
     console.error('인스턴스 생성 중 오류:', error)
   }
 }
