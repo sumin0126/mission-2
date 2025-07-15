@@ -33,8 +33,6 @@ export const useLoadingStore = defineStore('loading', () => {
 
   return {
     isLoading,
-    startLoading,
-    stopLoading,
     withLoading,
   }
 })
