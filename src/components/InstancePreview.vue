@@ -10,27 +10,27 @@
     <div class="preview-content">
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.name') }}</span>
-        <span class="value">{{ instance.name || '-' }}</span>
+        <span class="value">{{ displayName }}</span>
       </div>
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.image') }}</span>
-        <span class="value">{{ instance.image || '-' }}</span>
+        <span class="value">{{ displayImage }}</span>
       </div>
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.cpu') }}</span>
-        <span class="value">{{ instance.cpu || '-' }}</span>
+        <span class="value">{{ displayCpu }}</span>
       </div>
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.memory') }}</span>
-        <span class="value">{{ instance.memory ? instance.memory + 'GB' : '-' }}</span>
+        <span class="value">{{ displayMemory }}</span>
       </div>
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.disk') }}</span>
-        <span class="value">{{ instance.disk ? instance.disk + 'GB' : '-' }}</span>
+        <span class="value">{{ displayDisk }}</span>
       </div>
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.network') }}</span>
-        <span class="value">{{ instance.network || '-' }}</span>
+        <span class="value">{{ displayNetwork }}</span>
       </div>
     </div>
   </div>
@@ -38,15 +38,28 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 import type { Instance } from '@/mock/types/instance'
 
-defineProps<{
+const props = defineProps<{
   instance: Partial<Instance>
   isValid: boolean
   showInvalid: boolean
 }>()
 
 const { t } = useI18n()
+
+const displayName = computed(() => props.instance.name || '-')
+
+const displayImage = computed(() => props.instance.image || '-')
+
+const displayCpu = computed(() => props.instance.cpu || '-')
+
+const displayMemory = computed(() => (props.instance.memory ? `${props.instance.memory}GB` : '-'))
+
+const displayDisk = computed(() => (props.instance.disk ? `${props.instance.disk}GB` : '-'))
+
+const displayNetwork = computed(() => props.instance.network || '-')
 </script>
 
 <style scoped>
