@@ -62,13 +62,20 @@ const showDeleteConfirmModal = ref(false)
 
 // 컴포넌트 마운트 시 인스턴스 목록 로드
 onMounted(async () => {
+  // 선택된 인스턴스 초기화
+  selectedInstanceIds.value = []
+
   // 생성 페이지에서 왔을 때는 이미 목록이 업데이트되어 있으므로 로딩 없이 진행
   if (instanceStore.instances.length > 0) {
     return
   }
 
   try {
-    await loadingStore.withLoading(() => instanceStore.getInstances())
+    await loadingStore.withLoading(async () => {
+      await instanceStore.getInstances()
+      // 인스턴스 목록이 새로 로드된 후에도 선택 상태 초기화
+      selectedInstanceIds.value = []
+    })
   } catch (error) {
     console.error('인스턴스 목록 로드 실패:', error)
   }
@@ -85,20 +92,6 @@ const handlePowerToggle = async (instance: Instance) => {
     await instanceStore.toggleInstancePower(instance.id)
   } catch (error) {
     console.error('전원 상태 변경 실패:', error)
-  }
-}
-
-// 인스턴스 삭제 처리
-const handleDelete = async (ids: string[]) => {
-  try {
-    // 순차적으로 삭제 처리
-    for (const id of ids) {
-      await instanceStore.deleteInstance(id)
-    }
-    // 삭제 후 목록 갱신
-    await instanceStore.getInstances()
-  } catch (error) {
-    console.error('인스턴스 삭제 실패:', error)
   }
 }
 
