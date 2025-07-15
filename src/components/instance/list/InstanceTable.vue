@@ -45,7 +45,7 @@
               />
             </td>
             <td>
-              <span class="instance-link" @click="navigateToDetail(instance.id)">
+              <span class="instance-link" @click="handleNavigateToDetail(instance.id)">
                 {{ instance.name }}
               </span>
             </td>
@@ -70,7 +70,6 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { useLoadingStore } from '@/stores/loading'
 import type { Instance } from '@/mock/types/instance'
 import StatusBadge from './StatusBadge.vue'
 import PowerToggle from './PowerToggle.vue'
@@ -94,7 +93,6 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const router = useRouter()
-const loadingStore = useLoadingStore()
 
 // 현재 선택된 모든 인스턴스 ID들
 const selectedIds = ref<string[]>([])
@@ -117,31 +115,25 @@ const handleSelectAllInstances = (event: Event) => {
   emit('select', selectedIds.value)
 }
 
-// 개별 인스턴스 선택/해제 처리 - 체크박스
+// 인스턴스 상세 페이지로 이동
+const handleNavigateToDetail = (id: string) => {
+  router.push({ name: 'instanceDetail', params: { id } })
+}
+
+// 체크박스 선택 처리
 const handleSelectInstance = (id: string) => {
   const index = selectedIds.value.indexOf(id)
   if (index === -1) {
-    selectedIds.value.push(id) // 체크박스 선택
+    selectedIds.value.push(id)
   } else {
-    selectedIds.value.splice(index, 1) // 체크박스 해제
+    selectedIds.value.splice(index, 1)
   }
   emit('select', selectedIds.value)
 }
 
 // 전원 토글 처리
-const handlePowerToggle = (instance: Instance) => {
+const handlePowerToggle = async (instance: Instance) => {
   emit('togglePower', instance)
-}
-
-// 인스턴스 상세 페이지로 이동
-const navigateToDetail = async (instanceId: string) => {
-  try {
-    await loadingStore.withLoading(async () => {
-      await router.push({ name: 'instanceDetail', params: { id: instanceId } })
-    })
-  } catch (error) {
-    console.error('상세 페이지 이동 실패:', error)
-  }
 }
 </script>
 

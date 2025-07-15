@@ -3,8 +3,8 @@
   <div
     class="select-container"
     ref="selectContainer"
-    @focusin="isFocused = true"
-    @focusout="isFocused = false"
+    @focusin="handleFocusIn"
+    @focusout="handleFocusOut"
     @keydown="handleKeyDown"
   >
     <!-- 선택된 값을 보여주는 박스 영역 -->
@@ -35,7 +35,7 @@
           'keyboard-selected': index === selectedIndex,
         }"
         @click="selectItem(item)"
-        @mouseenter="selectedIndex = index"
+        @mouseenter="handleMouseEnter(index)"
       >
         <!-- 아이템 내용 표시를 위한 슬롯 -->
         <slot name="item" :item="item">
@@ -108,10 +108,10 @@ const handleKeyDown = (event: KeyboardEvent) => {
         const selectedItem = props.items[selectedIndex.value]
         selectItem(selectedItem)
 
-        // 현재 select-box 요소를 찾습니다
+        // 현재 select-box 요소를 찾음
         const currentSelectBox = selectContainer.value?.querySelector('.select-box') as HTMLElement
         if (currentSelectBox) {
-          // 현재 요소의 포커스를 해제합니다
+          // 현재 요소의 포커스를 해제
           currentSelectBox.blur()
 
           // 네트워크 선택 컴포넌트인지 확인
@@ -153,14 +153,14 @@ const selectItem = (item: any) => {
   selectedIndex.value = -1
   isFocused.value = false
 
-  // select-box의 포커스를 명시적으로 해제합니다
+  // select-box의 포커스를 명시적으로 해제
   const selectBox = selectContainer.value?.querySelector('.select-box') as HTMLElement
   if (selectBox) {
     selectBox.blur()
   }
 }
 
-// 드롭다운 토글 함수도 수정합니다
+// 드롭다운 토글 함수도 수정
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
   if (isOpen.value) {
@@ -171,6 +171,20 @@ const toggleDropdown = () => {
     // 드롭다운이 닫힐 때 포커스 상태도 해제합니다
     isFocused.value = false
   }
+}
+
+// 포커스 핸들러
+const handleFocusIn = () => {
+  isFocused.value = true
+}
+
+const handleFocusOut = () => {
+  isFocused.value = false
+}
+
+// 마우스 엔터 핸들러
+const handleMouseEnter = (index: number) => {
+  selectedIndex.value = index
 }
 
 // 외부 클릭 처리 함수

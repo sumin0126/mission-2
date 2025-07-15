@@ -23,8 +23,8 @@
               class="form-input"
               :class="{ 'input-error': errors.name || isDuplicate }"
               @keydown.enter="handleEnter('name')"
-              @blur="validateField('name')"
-              @input="resetDuplicateCheck"
+              @blur="handleBlur('name')"
+              @input="handleNameInput"
             />
             <!-- 중복 확인 버튼 -->
             <button
@@ -419,6 +419,16 @@ const handleEnter = (currentField: FormField) => {
 // 취소 핸들러
 const handleCancel = () => {
   router.push({ name: 'instanceList' })
+}
+
+// 이름 입력 핸들러
+const handleNameInput = () => {
+  resetDuplicateCheck()
+}
+
+// blur 핸들러
+const handleBlur = (field: FormField) => {
+  validateField(field)
 }
 </script>
 
