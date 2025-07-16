@@ -10,27 +10,27 @@
     <div class="preview-content">
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.name') }}</span>
-        <span class="value">{{ displayName }}</span>
+        <span class="value">{{ displayedDate.name }}</span>
       </div>
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.image') }}</span>
-        <span class="value">{{ displayImage }}</span>
+        <span class="value">{{ displayedDate.image }}</span>
       </div>
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.cpu') }}</span>
-        <span class="value">{{ displayCpu }}</span>
+        <span class="value">{{ displayedDate.cpu }}</span>
       </div>
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.memory') }}</span>
-        <span class="value">{{ displayMemory }}</span>
+        <span class="value">{{ displayedDate.memory }}</span>
       </div>
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.disk') }}</span>
-        <span class="value">{{ displayDisk }}</span>
+        <span class="value">{{ displayedDate.disk }}</span>
       </div>
       <div class="preview-item">
         <span class="label">{{ t('instance.preview.network') }}</span>
-        <span class="value">{{ displayNetwork }}</span>
+        <span class="value">{{ displayedDate.network }}</span>
       </div>
     </div>
   </div>
@@ -49,17 +49,16 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const displayName = computed(() => props.instance.name || '-')
-
-const displayImage = computed(() => props.instance.image || '-')
-
-const displayCpu = computed(() => props.instance.cpu || '-')
-
-const displayMemory = computed(() => (props.instance.memory ? `${props.instance.memory}GB` : '-'))
-
-const displayDisk = computed(() => (props.instance.disk ? `${props.instance.disk}GB` : '-'))
-
-const displayNetwork = computed(() => props.instance.network || '-')
+// 인스턴스 상세정보
+// 분리되어있던 computed 속성 하나로 통합
+const displayedDate = computed(() => ({
+  name: props.instance.name || '-',
+  image: props.instance.image || '-',
+  cpu: props.instance.cpu || '-',
+  memory: props.instance.memory ? `${props.instance.memory}GB` : '-',
+  disk: props.instance.disk ? `${props.instance.disk}GB` : '-',
+  network: props.instance.network || '-',
+}))
 </script>
 
 <style scoped>
