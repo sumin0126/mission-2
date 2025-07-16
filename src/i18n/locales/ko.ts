@@ -80,6 +80,14 @@ export default {
           duplicate: '이미 사용 중인 인스턴스 이름입니다',
           error: '중복 확인 중 오류가 발생했습니다',
         },
+        name_length: {
+          min: '인스턴스 이름은 최소 {min}자 이상이어야 합니다',
+          max: '인스턴스 이름은 최대 {max}자까지 입력 가능합니다',
+        },
+        name_pattern: {
+          no_spaces: '공백을 입력할 수 없습니다',
+          invalid_chars: '영문자, 숫자, 하이픈(-), 언더스코어(_), 점(.)만 사용할 수 있습니다',
+        },
       },
       button: {
         creating: '생성 중...',

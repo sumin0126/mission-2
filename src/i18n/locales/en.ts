@@ -80,6 +80,15 @@ export default {
           duplicate: 'This instance name is already in use',
           error: 'An error occurred while checking for duplicates',
         },
+        name_length: {
+          min: 'Instance name must be at least {min} characters',
+          max: 'Instance name cannot exceed {max} characters',
+        },
+        name_pattern: {
+          no_spaces: 'Spaces are not allowed',
+          invalid_chars:
+            'Only letters, numbers, hyphens(-), underscores(_), and dots(.) are allowed',
+        },
       },
       button: {
         creating: 'Creating...',
