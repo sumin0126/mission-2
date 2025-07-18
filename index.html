@@ -2,12 +2,21 @@
 <html lang="">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="./favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>mission-2</title>
+    <script type="text/javascript">
+      ;(function () {
+        const redirect = sessionStorage.getItem('redirect')
+        if (redirect && redirect !== location.pathname) {
+          sessionStorage.removeItem('redirect')
+          history.replaceState(null, null, redirect)
+        }
+      })()
+    </script>
   </head>
   <body style="margin: 0; padding: 0; height: 100%; overflow-x: hidden">
     <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

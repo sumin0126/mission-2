@@ -1,8 +1,8 @@
 <template>
   <div class="breadcrumb-container">
     <nav class="breadcrumb">
+      <!-- 현재 페이지 경로 (가상으로 클릭 불가) -->
       <ol class="breadcrumb-list">
-        <!-- Server (가상의 홈, 클릭 불가) -->
         <li class="breadcrumb-item">
           <span class="breadcrumb-text">{{ t('breadcrumb.server') }}</span>
         </li>
@@ -26,19 +26,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { setLanguage, getCurrentLanguageInfo, supportedLanguages } from '@/i18n'
+import { useLanguage } from '@/i18n/useLanguage'
 
 const { t } = useI18n()
-
-const currentLanguageInfo = computed(() => getCurrentLanguageInfo())
-
-const switchLanguage = () => {
-  const currentLang = currentLanguageInfo.value.code
-  const nextLang = supportedLanguages.find((lang) => lang.code !== currentLang)?.code || 'ko'
-  setLanguage(nextLang)
-}
+const { currentLanguageInfo, switchLanguage } = useLanguage()
 </script>
 
 <style scoped>
@@ -130,9 +122,9 @@ const switchLanguage = () => {
 
   .breadcrumb {
     padding: 0 18px;
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
-    align-items: flex-start;
+    align-items: center;
   }
 
   .breadcrumb-text {

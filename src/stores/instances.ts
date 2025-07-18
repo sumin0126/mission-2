@@ -1,330 +1,249 @@
+// 인스턴스 CRUD 및 전원 제어 로직, 내부/외부 IP 자동 할당
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Instance, CreateInstanceRequest, UpdateInstanceRequest } from '@/mock/types/instance'
-import { mockInstances } from '@/mock/data/instances'
-import { getFlavorByName, validateFlavor } from '@/mock/api/flavorApi'
-import { validateImage } from '@/mock/api/imageApi'
-import {
-  validateNetwork,
-  allocatePrivateIp,
-  releasePrivateIp,
-  allocatePublicIp,
-  releasePublicIp,
-} from '@/mock/api/networkApi'
-import { delay, DELAY_TIMES } from '@/mock/utils/delay'
+import type { Network } from '@/mock/types/network'
+import * as instanceAPI from '@/api/instances'
+import { mockNetworks } from '@/mock/data/networks'
 
-export const useInstanceStore = defineStore('instances', () => {
-  // 1) 상태 (State)
-  const instances = ref<Instance[]>([...mockInstances])
-  const loading = ref(false)
+// 내부 IP 할당 함수
+const generatePrivateIp = () => {
+  // 앞에 3개의 옥텟은 고정하고 마지막 옥텟만 생성
+  const lastOctet = Math.floor(Math.random() * (254 - 80 + 1)) + 80
+  // 172.30.110.80 ~ 172.30.110.254 사이에 랜덤한 IP 생성
+  return `172.30.110.${lastOctet}`
+}
+
+// 외부 IP 할당 함수
+const generatePublicIp = () => {
+  const lastOctet = Math.floor(Math.random() * 254) + 1
+  return `203.0.113.${lastOctet}`
+}
+
+// 네트워크 타입 확인 함수
+const getNetworkType = (networkName: string): 'private' | 'public' => {
+  const network = mockNetworks.find((n) => n.name === networkName)
+  // 타입 단언(as)를 사용하면 반환값이 둘 중 하나임을 보장함
+  return network?.type as 'private' | 'public'
+}
+
+// 인스턴스 스토어 정의
+export const useInstancesStore = defineStore('instances', () => {
+  const instances = ref<Instance[]>([]) // 인스턴스 데이터들을 담을 배열
+  // API 요청이 동시에 발생할 경우, 하나의 로딩 상태로는 상태 관리가 어려울 것 같음
+  const isLoading = ref(false) // 목록 조회 중 상태
+  const isLoadingDetails = ref(false) // 상세 정보 조회 중 상태
+  const isCreating = ref(false) // 생성 중 상태
+  const isUpdating = ref(false) // 수정 중 상태
+  const isDeleting = ref(false) // 삭제 중 상태
+  const isTogglingPower = ref(false) // 전원 상태 변경 중 상태
   const error = ref<string | null>(null)
 
-  // 2) 게터 (Getters)
-  const totalInstances = computed(() => instances.value.length)
-  const runningInstances = computed(() =>
-    instances.value.filter((instance) => instance.status === 'RUNNING')
-  )
-  const shutdownInstances = computed(() =>
-    instances.value.filter((instance) => instance.status === 'SHUTDOWN')
-  )
-
-  // 3) 액션 (action)
-  // 인스턴스 목록 조회
-  const getInstances = async (): Promise<Instance[]> => {
-    loading.value = true
+  // 인스턴스 목록 조회 (초기화)
+  const getInstances = async () => {
+    isLoading.value = true
     error.value = null
-
     try {
-      await delay(DELAY_TIMES.NORMAL)
-
-      return [...instances.value]
+      const response = await instanceAPI.fetchInstances()
+      // 배열이 아닌 다른 형식이 반환되어 타입 에러가 발생하는 것을 방지함
+      instances.value = Array.isArray(response.data) ? response.data : []
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Unknown error'
-      throw err
+      console.error('인스턴스 목록 초기화 실패:', err)
+      error.value = '인스턴스 목록을 불러오는데 실패했습니다.'
+      instances.value = []
     } finally {
-      loading.value = false
+      isLoading.value = false
     }
   }
 
-  // 상세 조회
-  const getInstanceById = async (id: string): Promise<Instance> => {
-    loading.value = true
-    error.value = null
-
+  // 인스턴스 단일 조회
+  const getInstance = async (instanceId: string) => {
+    isLoadingDetails.value = true
     try {
-      await delay(DELAY_TIMES.FAST)
-
-      const instance = instances.value.find((inst) => inst.id === id)
-      if (!instance) {
-        throw new Error(`Instance with id ${id} not found`)
-      }
-
-      return instance
+      const response = await instanceAPI.fetchInstance(instanceId)
+      return response.data
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Unknown error'
+      console.error('인스턴스 조회 실패:', err)
       throw err
     } finally {
-      loading.value = false
+      isLoadingDetails.value = false
     }
   }
 
   // 인스턴스 생성
-  const createInstance = async (data: CreateInstanceRequest): Promise<Instance> => {
-    loading.value = true
-    error.value = null
-
+  const createInstance = async (data: CreateInstanceRequest) => {
+    isCreating.value = true
     try {
-      await delay(DELAY_TIMES.SLOW)
+      // 내부 IP 할당
+      let privateIp: Instance['privateIp'] = generatePrivateIp()
+      while (instances.value.some((inst) => inst.privateIp === privateIp)) {
+        // 중복 시, 새로운 IP 재할당
+        privateIp = generatePrivateIp()
+      }
 
-      // 검증
-      const [isValidFlavor, isValidImage, isValidNetwork] = await Promise.all([
-        validateFlavor(data.flavor),
-        validateImage(data.image),
-        validateNetwork(data.network),
-      ])
+      // 외부 IP 할당
+      let publicIp: Instance['publicIp']
+      if (getNetworkType(data.network) === 'public') {
+        publicIp = generatePublicIp()
+        while (instances.value.some((inst) => inst.publicIp === publicIp)) {
+          publicIp = generatePublicIp()
+        }
+      }
 
-      if (!isValidFlavor) throw new Error(`Invalid flavor: ${data.flavor}`)
-      if (!isValidImage) throw new Error(`Invalid image: ${data.image}`)
-      if (!isValidNetwork) throw new Error(`Invalid network: ${data.network}`)
-
-      // Flavor 정보 조회
-      const flavor = await getFlavorByName(data.flavor)
-      if (!flavor) throw new Error(`Flavor not found: ${data.flavor}`)
-
-      // IP 할당
-      const [privateIp, publicIp] = await Promise.all([
-        allocatePrivateIp(data.network),
-        allocatePublicIp(data.network),
-      ])
-
-      const newInstance: Instance = {
-        id: `inst-${Date.now()}`,
-        name: data.name,
-        status: 'SHUTDOWN',
-        flavor: data.flavor,
-        image: data.image,
-        network: data.network,
-        cpu: flavor.cpu,
-        memory: flavor.memory,
-        disk: flavor.disk,
+      // 인스턴스 목록에 추가할 업데이트 데이터
+      const instanceData = {
+        ...data,
         privateIp,
-        powerOn: false,
-        createdAt: new Date().toISOString(),
+        publicIp,
       }
 
-      // 조건부로 publicIp 추가
-      if (publicIp) {
-        newInstance.publicIp = publicIp
-      }
-
-      instances.value.push(newInstance)
-      return newInstance
+      const response = await instanceAPI.fetchCreateInstance(instanceData)
+      instances.value.push(response.data)
+      return response.data
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Unknown error'
+      console.error('인스턴스 생성 실패:', err)
       throw err
     } finally {
-      loading.value = false
+      isCreating.value = false
     }
   }
 
   // 인스턴스 수정
-  const updateInstance = async (id: string, data: UpdateInstanceRequest): Promise<Instance> => {
-    loading.value = true
-    error.value = null
-
+  const updateInstance = async (instanceId: string, data: UpdateInstanceRequest) => {
+    isUpdating.value = true
     try {
-      await delay(DELAY_TIMES.NORMAL)
-
-      const instanceIndex = instances.value.findIndex((inst) => inst.id === id)
-      if (instanceIndex === -1) {
-        throw new Error(`Instance with id ${id} not found`)
-      }
-
-      let modifiedInstance = { ...instances.value[instanceIndex] }
-
-      // 이름 수정
-      if (data.name) {
-        modifiedInstance.name = data.name
-      }
-
-      // Flavor 변경
-      if (data.flavor) {
-        const isValidFlavor = await validateFlavor(data.flavor)
-        if (!isValidFlavor) throw new Error(`Invalid flavor: ${data.flavor}`)
-
-        const flavor = await getFlavorByName(data.flavor)
-        if (!flavor) throw new Error(`Flavor not found: ${data.flavor}`)
-
-        modifiedInstance.flavor = data.flavor
-        modifiedInstance.cpu = flavor.cpu
-        modifiedInstance.memory = flavor.memory
-        modifiedInstance.disk = flavor.disk
-      }
-
-      // Image 변경
-      if (data.image) {
-        const isValidImage = await validateImage(data.image)
-        if (!isValidImage) throw new Error(`Invalid image: ${data.image}`)
-        modifiedInstance.image = data.image
-      }
-
-      // Network 변경
+      // 네트워크 변경이 있는 경우 IP 처리
       if (data.network) {
-        const isValidNetwork = await validateNetwork(data.network)
-        if (!isValidNetwork) throw new Error(`Invalid network: ${data.network}`)
+        const instance = instances.value.find((inst) => inst.id === instanceId)
+        if (instance) {
+          const oldNetworkType = getNetworkType(instance.network)
+          const newNetworkType = getNetworkType(data.network)
 
-        // 기존 IP 해제
-        // 내부 IP 해제
-        await releasePrivateIp(modifiedInstance.network, modifiedInstance.privateIp)
-        // 외부 IP 해제
-        if (modifiedInstance.publicIp) {
-          await releasePublicIp(modifiedInstance.network, modifiedInstance.publicIp)
-        }
-
-        // 새 IP 할당
-        const [newPrivateIp, newPublicIp] = await Promise.all([
-          allocatePrivateIp(data.network),
-          allocatePublicIp(data.network),
-        ])
-
-        modifiedInstance.network = data.network
-        modifiedInstance.privateIp = newPrivateIp
-        if (newPublicIp) {
-          modifiedInstance.publicIp = newPublicIp
-        } else {
-          delete modifiedInstance.publicIp
+          // 네트워크 타입이 변경되었고, 그게 퍼블릭이라면
+          if (oldNetworkType !== newNetworkType) {
+            if (newNetworkType === 'public') {
+              // 외부 IP 할당
+              let publicIp = generatePublicIp()
+              while (instances.value.some((inst) => inst.publicIp === publicIp)) {
+                // 외부 IP 재할당
+                publicIp = generatePublicIp()
+              }
+              data.publicIp = publicIp
+            } else {
+              // public -> private이라면, 외부 IP 제거
+              data.publicIp = undefined
+            }
+          }
         }
       }
 
-      instances.value[instanceIndex] = modifiedInstance
-      return modifiedInstance
+      const response = await instanceAPI.fetchUpdateInstance(instanceId, data)
+      const index = instances.value.findIndex((inst) => inst.id === instanceId)
+      // 인스턴스 배열 업데이트
+      if (index !== -1) {
+        instances.value = [
+          // 업데이트할 인스턴스 이전까지의 데이터들
+          ...instances.value.slice(0, index),
+          // 새로 업데이트할 인스턴스 데이터
+          response.data,
+          // 업데이트할 인스턴스 이후의 데이터들
+          ...instances.value.slice(index + 1),
+        ]
+      }
+      return response.data
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Unknown error'
+      console.error('인스턴스 수정 실패:', err)
       throw err
     } finally {
-      loading.value = false
+      isUpdating.value = false
     }
   }
 
   // 인스턴스 삭제
-  const deleteInstance = async (id: string): Promise<void> => {
-    loading.value = true
-    error.value = null
-
+  const deleteInstance = async (instanceId: string) => {
+    isDeleting.value = true
     try {
-      await delay(DELAY_TIMES.FAST)
-
-      const instanceIndex = instances.value.findIndex((inst) => inst.id === id)
-      if (instanceIndex === -1) {
-        throw new Error(`Instance with id ${id} not found`)
-      }
-
-      const instance = instances.value[instanceIndex]
-
-      // 기존 IP 해제
-      // 내부 IP 해제
-      await releasePrivateIp(instance.network, instance.privateIp)
-      // 외부 IP 해제
-      if (instance.publicIp) {
-        await releasePublicIp(instance.network, instance.publicIp)
-      }
-
-      instances.value.splice(instanceIndex, 1)
+      await instanceAPI.fetchDeleteInstance(instanceId)
+      instances.value = instances.value.filter((inst) => inst.id !== instanceId)
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Unknown error'
+      console.error('인스턴스 삭제 실패:', err)
       throw err
     } finally {
-      loading.value = false
+      isDeleting.value = false
     }
   }
 
-  // 인스턴스 다중 삭제
-  const bulkDeleteInstances = async (ids: string[]): Promise<void> => {
-    loading.value = true
-    error.value = null
+  // 인스턴스 전원 토글 (목록 화면에서 제어시 사용)
+  const toggleInstancePower = async (instanceId: string) => {
+    const instance = instances.value.find((inst) => inst.id === instanceId)
+    if (!instance) throw new Error(`인스턴스를 찾을 수 없습니다: ${instanceId}`)
 
+    isTogglingPower.value = true
     try {
-      await delay(DELAY_TIMES.VERY_SLOW)
-
-      // 삭제할 인스턴스들 찾기
-      const instancesToDelete = instances.value.filter((item) => ids.includes(item.id))
-
-      // 각 인스턴스의 IP 해제
-      for (const targetInstance of instancesToDelete) {
-        // 내부 IP 해제
-        await releasePrivateIp(targetInstance.network, targetInstance.privateIp)
-        // 외부 IP 해제
-        if (targetInstance.publicIp) {
-          await releasePublicIp(targetInstance.network, targetInstance.publicIp)
-        }
-      }
-
-      // 인스턴스 목록에서 제거
-      instances.value = instances.value.filter((item) => !ids.includes(item.id))
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Unknown error'
-      throw err
-    } finally {
-      loading.value = false
-    }
-  }
-
-  // 전원 토글
-  const toggleInstancePower = async (id: string): Promise<Instance> => {
-    loading.value = true
-    error.value = null
-
-    try {
-      await delay(DELAY_TIMES.POWER_TOGGLE)
-
-      const instanceIndex = instances.value.findIndex((inst) => inst.id === id)
-      if (instanceIndex === -1) {
-        throw new Error(`Instance with id ${id} not found`)
-      }
-
-      const currentInstance = instances.value[instanceIndex]
-      const newPowerState = !currentInstance.powerOn
-
-      const updatedInstance = {
-        ...currentInstance,
+      const newPowerState = !instance.powerOn
+      const response = await instanceAPI.fetchToggleInstancePower(instanceId, {
         powerOn: newPowerState,
-        status: newPowerState ? ('RUNNING' as const) : ('SHUTDOWN' as const),
-      }
+        status: newPowerState ? 'RUNNING' : 'SHUTDOWN',
+      })
 
-      instances.value[instanceIndex] = updatedInstance
-      return updatedInstance
+      // 인스턴스 배열 업데이트
+      const index = instances.value.findIndex((inst) => inst.id === instanceId)
+      if (index !== -1) {
+        instances.value = [
+          ...instances.value.slice(0, index),
+          response.data,
+          ...instances.value.slice(index + 1),
+        ]
+      }
+      return response.data
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Unknown error'
+      console.error('인스턴스 전원 상태 변경 실패:', err)
       throw err
     } finally {
-      loading.value = false
+      isTogglingPower.value = false
     }
   }
 
-  // 에러 상태 초기화
-  const clearError = () => {
-    error.value = null
+  // 인스턴스 전원 상태 업데이트 (수정 모달에서 제어시 사용)
+  const updatePowerStatus = async (
+    instanceId: string,
+    data: Pick<Instance, 'powerOn' | 'status'>
+  ) => {
+    isTogglingPower.value = true
+    try {
+      const response = await instanceAPI.fetchToggleInstancePower(instanceId, data)
+      const index = instances.value.findIndex((inst) => inst.id === instanceId)
+      if (index !== -1) {
+        instances.value = [
+          ...instances.value.slice(0, index),
+          response.data,
+          ...instances.value.slice(index + 1),
+        ]
+      }
+      return response.data
+    } catch (err) {
+      console.error('인스턴스 전원 상태 변경 실패:', err)
+      throw err
+    } finally {
+      isTogglingPower.value = false
+    }
   }
 
   return {
-    // 상태
     instances,
-    loading,
+    isLoading,
+    isLoadingDetails,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    isTogglingPower,
     error,
-
-    // 게터
-    totalInstances,
-    runningInstances,
-    shutdownInstances,
-
-    // 액션
-    getInstances,
-    getInstanceById,
+    getInstance,
     createInstance,
     updateInstance,
     deleteInstance,
     toggleInstancePower,
-    bulkDeleteInstances,
-    clearError,
+    getInstances,
+    updatePowerStatus,
   }
 })
