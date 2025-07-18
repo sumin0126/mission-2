@@ -25,6 +25,7 @@
       :instances="instanceStore.instances"
       :is-loading="instanceStore.isLoading"
       :error="instanceStore.error"
+      :selected-ids="selectedInstanceIds"
       @select="handleInstanceSelection"
       @togglePower="handlePowerToggle"
     />
@@ -53,7 +54,7 @@ import AppConfirmModal from '@/components/common/AppConfirmModal.vue'
 
 const instanceStore = useInstancesStore()
 const loadingStore = useLoadingStore()
-const selectedInstanceIds = ref<string[]>([])
+const selectedInstanceIds = ref<string[]>([]) // 선택된 체크박스 아이디들을 담은 배열
 const router = useRouter()
 const { t } = useI18n()
 
@@ -75,6 +76,7 @@ onMounted(async () => {
       await instanceStore.getInstances()
       // 인스턴스 목록이 새로 로드된 후에도 선택 상태 초기화
       selectedInstanceIds.value = []
+      console.log('마운트 : ', selectedInstanceIds.value.length)
     })
   } catch (error) {
     console.error('인스턴스 목록 로드 실패:', error)
@@ -84,21 +86,14 @@ onMounted(async () => {
 // 인스턴스 선택 처리
 const handleInstanceSelection = (ids: string[]) => {
   selectedInstanceIds.value = ids
-}
-
-// 전원 토글 처리
-const handlePowerToggle = async (instance: Instance) => {
-  try {
-    await instanceStore.toggleInstancePower(instance.id)
-  } catch (error) {
-    console.error('전원 상태 변경 실패:', error)
-  }
+  console.log('체크박스 선택 처리 : ', selectedInstanceIds.value.length)
 }
 
 // 인스턴스 다중 삭제 함수
 const deleteSelectedInstances = () => {
   if (selectedInstanceIds.value.length === 0) return
   showDeleteConfirmModal.value = true
+  console.log('다중 삭제 함수 : ', selectedInstanceIds.value.length)
 }
 
 // 삭제 확인 시
@@ -109,9 +104,14 @@ const handleDeleteConfirm = async (dontShowToday: boolean) => {
       for (const id of selectedInstanceIds.value) {
         await instanceStore.deleteInstance(id)
       }
+
+      // 삭제 후 목록 갱신 전에 선택 상태 초기화
       selectedInstanceIds.value = []
+      console.log('삭제 후 : ', selectedInstanceIds.value.length)
+
       // 삭제 후 목록 갱신
       await instanceStore.getInstances()
+      console.log('목록 갱신 후 : ', selectedInstanceIds.value.length)
 
       // 오늘 하루 보지 않기 설정 저장
       if (dontShowToday) {
@@ -120,6 +120,15 @@ const handleDeleteConfirm = async (dontShowToday: boolean) => {
     })
   } catch (error) {
     console.error('인스턴스 삭제 실패:', error)
+  }
+}
+
+// 전원 토글 처리
+const handlePowerToggle = async (instance: Instance) => {
+  try {
+    await instanceStore.toggleInstancePower(instance.id)
+  } catch (error) {
+    console.error('전원 상태 변경 실패:', error)
   }
 }
 

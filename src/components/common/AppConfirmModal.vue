@@ -40,10 +40,10 @@ const { t } = useI18n()
 
 defineProps<{
   modelValue: boolean // 모달 열림, 닫힘 상태
-  title: string
-  message: string
-  confirmText?: string
-  cancelText?: string
+  title: string // 모달 타이틀
+  message: string // 모달 안내 메시지
+  confirmText?: string // 확인 버튼 텍스트
+  cancelText?: string // 취소 버튼 텍스트
 }>()
 
 const emit = defineEmits<{

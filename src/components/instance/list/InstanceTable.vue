@@ -35,6 +35,7 @@
           <tr v-if="!instances.length">
             <td colspan="8" class="no-data">{{ t('instance.list.table.noData') }}</td>
           </tr>
+          <!-- 체크박스 개별 선택 -->
           <tr v-else v-for="instance in instances" :key="instance.id">
             <td class="checkbox-column">
               <input
@@ -67,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import type { Instance } from '@/mock/types/instance'
@@ -78,11 +79,13 @@ interface Props {
   instances: Instance[]
   isLoading?: boolean
   error?: string | null
+  selectedIds: string[] // 선택된 ID들을 props로 받음
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isLoading: false,
   error: null,
+  selectedIds: () => [], // 기본값 설정
 })
 
 const emit = defineEmits<{
@@ -91,28 +94,18 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-
 const router = useRouter()
 
-// 현재 선택된 모든 인스턴스 ID들
-const selectedIds = ref<string[]>([])
-
-// 모든 인스턴스가 선택되었는지 확인
+// 체크박스 전체 선택
 const isAllSelected = computed(() => {
-  return props.instances.length > 0 && selectedIds.value.length === props.instances.length
+  return props.instances.length > 0 && props.selectedIds.length === props.instances.length
 })
 
-// 전체 인스턴스 선택/해제 처리 - 체크박스
+// 전체 인스턴스 선택/해제 처리 이벤트 핸들러
 const handleSelectAllInstances = (event: Event) => {
   const target = event.target as HTMLInputElement
-  if (target.checked) {
-    selectedIds.value = props.instances.map((instance) => instance.id)
-  } else {
-    selectedIds.value = []
-  }
-
-  // InstanceListView에 이벤트 전달
-  emit('select', selectedIds.value)
+  const newSelectedIds = target.checked ? props.instances.map((instance) => instance.id) : []
+  emit('select', newSelectedIds)
 }
 
 // 인스턴스 상세 페이지로 이동
@@ -122,13 +115,14 @@ const handleNavigateToDetail = (id: string) => {
 
 // 체크박스 선택 처리
 const handleSelectInstance = (id: string) => {
-  const index = selectedIds.value.indexOf(id)
+  const newSelectedIds = [...props.selectedIds]
+  const index = newSelectedIds.indexOf(id)
   if (index === -1) {
-    selectedIds.value.push(id)
+    newSelectedIds.push(id)
   } else {
-    selectedIds.value.splice(index, 1)
+    newSelectedIds.splice(index, 1)
   }
-  emit('select', selectedIds.value)
+  emit('select', newSelectedIds)
 }
 
 // 전원 토글 처리
