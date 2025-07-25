@@ -5,3 +5,5 @@ export interface Flavor {
   memory: number
   disk: number
 }
+
+export type FlavorsResponse = Flavor[]
