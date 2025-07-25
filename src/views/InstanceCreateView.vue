@@ -40,9 +40,11 @@
             </button>
           </div>
           <span v-if="errors.name" class="error-text">{{ errors.name }}</span>
+          <!-- 이름이 중복되었을때 에러 메시지 -->
           <span v-else-if="isDuplicate" class="error-text">{{
             t('instance.create.validation.name_duplicate.duplicate')
           }}</span>
+          <!-- 이름이 중복되지 않았을때 성공 메시지 -->
           <span v-else-if="isNameChecked && !isDuplicate" class="success-text">{{
             t('instance.create.validation.name_duplicate.available')
           }}</span>
@@ -152,6 +154,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '@/stores/instances'
 import { useLoadingStore } from '@/stores/loading'
+
 import type { Flavor } from '@/mock/types/flavor'
 import type { Instance } from '@/mock/types/instance'
 
@@ -161,9 +164,11 @@ import NetworkSelect from '@/components/instance/create/NetworkSelect.vue'
 import InstancePreview from '@/components/InstancePreview.vue'
 import AppAlertModal from '@/components/common/AppAlertModal.vue'
 
-// 타입 정의
+// FormField: 인스턴스 생성에 필요한 필수 입력 필드들의 유니온 타입
 type FormField = 'name' | 'image' | 'flavor' | 'network'
+// FormErrors: 각 필드별 유효성 검사 에러 메시지를 저장하는 타입
 type FormErrors = Record<FormField, string>
+// FormData: 인스턴스 생성 폼의 전체 데이터 구조를 정의하는 타입
 type FormData = {
   name: string
   image: string
@@ -172,12 +177,13 @@ type FormData = {
   flavorDetail: Flavor
 }
 
+// Vue Router, Store, i18n 초기화
 const router = useRouter()
 const instanceStore = useInstancesStore()
 const loadingStore = useLoadingStore()
 const { t } = useI18n()
 
-// 상수 정의 (유효성 메시지)
+// 각 필드별 유효성 검사 메시지 정의
 const VALIDATION_MESSAGES = {
   name: t('instance.create.validation.name'),
   image: t('instance.create.validation.image'),
@@ -185,12 +191,14 @@ const VALIDATION_MESSAGES = {
   network: t('instance.create.validation.network'),
 } as const
 
+// 인스턴스 이름 유효성 검사 규칙 정의
 const NAME_VALIDATION = {
   MIN_LENGTH: 2,
   MAX_LENGTH: 30,
   PATTERN: /^[a-zA-Z0-9-_.]+$/,
 } as const
 
+// Flavor 초기 상태 정의
 const INITIAL_FLAVOR: Flavor = {
   name: '',
   description: '',
@@ -199,13 +207,13 @@ const INITIAL_FLAVOR: Flavor = {
   disk: 0,
 }
 
-// 폼 필드 refs
+// 폼 필드 refs 정의
 const nameInput = ref<HTMLInputElement | null>(null)
 const imageSelect = ref<InstanceType<typeof ImageSelect> | null>(null)
 const flavorSelect = ref<InstanceType<typeof FlavorSelect> | null>(null)
 const networkSelect = ref<InstanceType<typeof NetworkSelect> | null>(null)
 
-// 폼 데이터
+// 폼 데이터 초기화
 const formData = ref<FormData>({
   name: '',
   image: '',
@@ -214,7 +222,7 @@ const formData = ref<FormData>({
   flavorDetail: { ...INITIAL_FLAVOR },
 })
 
-// 에러 상태
+// 에러 상태 초기화
 const errors = ref<FormErrors>({
   name: '',
   image: '',
@@ -222,26 +230,28 @@ const errors = ref<FormErrors>({
   network: '',
 })
 
-// 중복 체크 상태
-const isCheckingDuplicate = ref(false)
-const isDuplicate = ref(false)
-const isNameChecked = ref(false)
+// 중복 체크 관련 상태 초기화
+const isCheckingDuplicate = ref(false) // 중복 체크가 진행중인지
+const isDuplicate = ref(false) // 중복되는지
+const isNameChecked = ref(false) // 중복 체크가 완료되었는지
 
-// UI 상태
+// UI 상태 초기화
 const showErrorModal = ref(false)
 const errorMessage = ref('')
 const showSuccessModal = ref(false)
-const showInvalidPreview = ref(false)
+const showInvalidPreview = ref(false) // 미리보기 박스가 유효하지 않은 상태일떄, 박스에 에러 스타일 적용
 
-// Computed 속성
+// 폼 유효성 검사 computed 속성
 const isFormValid = computed(() => {
   return (
+    // 모든 에러 메시지가 비어있는지 확인
     Object.values(errors.value).every((error) => error === '') &&
+    // formData 값이 있는지 확인
     Object.values(formData.value).every((value) => value !== '')
   )
 })
 
-// 중복 확인 버튼 활성화 여부
+// 중복 확인 버튼 활성화 여부 computed 속성
 const isDuplicateCheckEnabled = computed(() => {
   const nameLength = formData.value.name.trim().length
   return (
@@ -252,72 +262,77 @@ const isDuplicateCheckEnabled = computed(() => {
   )
 })
 
-// 이름 필드 유효성 검사
-const validateNameField = (trimmedName: string): string => {
+// 이름 유효성 검사 결과 타입 정의
+interface NameValidityResult {
+  valid: boolean
+  error: string
+}
+
+// 이름 필드 유효성 검사 함수
+const checkNameValidity = (trimmedName: string): NameValidityResult => {
   // 이름이 없을 경우
   if (!trimmedName) {
-    return t('instance.create.validation.name')
+    return {
+      valid: false,
+      error: t('instance.create.validation.name'),
+    }
   }
 
   // 2자 이하일 경우
   if (trimmedName.length < NAME_VALIDATION.MIN_LENGTH) {
-    return t('instance.create.validation.name_length.min', { min: NAME_VALIDATION.MIN_LENGTH })
+    return {
+      valid: false,
+      error: t('instance.create.validation.name_length.min', { min: NAME_VALIDATION.MIN_LENGTH }),
+    }
   }
 
   // 30자 이상일 경우
   if (trimmedName.length > NAME_VALIDATION.MAX_LENGTH) {
-    return t('instance.create.validation.name_length.max', { max: NAME_VALIDATION.MAX_LENGTH })
+    return {
+      valid: false,
+      error: t('instance.create.validation.name_length.max', { max: NAME_VALIDATION.MAX_LENGTH }),
+    }
   }
 
-  // 정규표현식에 포함되지 않는 문자를 사용한 경우 (test 통과시 true, 실패시 false)
+  // 정규표현식에 포함되지 않는 문자를 사용한 경우
   if (NAME_VALIDATION.PATTERN.test(trimmedName) === false) {
-    return t('instance.create.validation.name_pattern.invalid_chars')
+    return {
+      valid: false,
+      error: t('instance.create.validation.name_pattern.invalid_chars'),
+    }
   }
 
-  // 중복 확인이 완료되지 않은 경우에만 메시지 표시
+  // 중복 확인이 완료되지 않은 경우
   if (!isNameChecked.value) {
-    return t('instance.create.validation.name_duplicate.required')
+    return {
+      valid: false,
+      error: t('instance.create.validation.name_duplicate.required'),
+    }
   }
 
-  // 중복 확인이 완료된 경우 빈 문자열 반환
-  return ''
+  // 유효한 경우
+  return {
+    valid: true,
+    error: '',
+  }
 }
 
-// 이름 중복 체크 검증
-const validateDuplicateCheck = (): string => {
-  if (isDuplicate.value) {
-    return t('instance.create.validation.name_duplicate.duplicate')
-  }
-
-  if (!isNameChecked.value) {
-    return t('instance.create.validation.name_duplicate.required')
-  }
-
-  return ''
-}
-
-// 필드 유효성 검사
-const validateField = (field: FormField) => {
+// 필드 유효성 검사 함수
+const validateField = (field: FormField): boolean => {
   showInvalidPreview.value = false
   const value = field === 'name' ? formData.value[field].trim() : formData.value[field]
 
   if (field === 'name') {
-    const nameValidation = validateNameField(value)
-    if (nameValidation) {
-      errors.value[field] = nameValidation
-      return false
-    }
-
-    const duplicateValidation = validateDuplicateCheck()
-    errors.value[field] = duplicateValidation
+    const validation = checkNameValidity(value)
+    errors.value[field] = validation.error
+    return validation.valid
   } else {
     errors.value[field] = value === '' ? VALIDATION_MESSAGES[field] : ''
+    return errors.value[field] === ''
   }
-
-  return errors.value[field] === ''
 }
 
-// 전체 폼 유효성 검사
+// 전체 폼 유효성 검사 함수
 const validateForm = () => {
   const fields: FormField[] = ['name', 'image', 'flavor', 'network']
   const isValid = fields.every((field) => validateField(field))
@@ -327,7 +342,7 @@ const validateForm = () => {
   return isValid
 }
 
-// 중복 체크 관련 이벤트 핸들러
+// 중복 이름 체크 함수
 const checkDuplicateName = async () => {
   const trimmedName = formData.value.name.trim()
   if (!trimmedName) return
@@ -355,20 +370,15 @@ const checkDuplicateName = async () => {
   }
 }
 
-const resetDuplicateCheck = () => {
-  if (!isCheckingDuplicate.value) {
-    isDuplicate.value = false
-    isNameChecked.value = false
-  }
-}
-
-// 폼 제출 관련 이벤트 핸들러
+// 인스턴스 생성 처리 함수
 const handleCreate = async () => {
   if (!validateForm()) {
+    // 폼이 유효하지 않은 상태에서 생성 버튼 클릭 시, 사양 미리보기 박스 true
     showInvalidPreview.value = true
     return
   }
 
+  // 중복 체크 검증
   if (!isNameChecked.value) {
     errors.value.name = t('instance.create.validation.name_duplicate.required')
     return
@@ -397,6 +407,7 @@ const handleCreate = async () => {
       return result
     })
 
+    // 성공 모달 표시 여부 결정
     const dontShowDate = localStorage.getItem('dontShowCreateSuccess')
     const today = new Date().toDateString()
 
@@ -412,6 +423,7 @@ const handleCreate = async () => {
   }
 }
 
+// 성공 모달 확인 처리 함수
 const handleSuccessConfirm = (dontShowToday: boolean) => {
   if (dontShowToday) {
     localStorage.setItem('dontShowCreateSuccess', new Date().toDateString())
@@ -419,18 +431,29 @@ const handleSuccessConfirm = (dontShowToday: boolean) => {
   router.push({ name: 'instanceList' })
 }
 
+// 에러 모달 닫기 함수
 const handleErrorModalClose = () => {
   showErrorModal.value = false
 }
 
+// 취소 버튼 처리 함수
 const handleCancel = () => {
   router.push({ name: 'instanceList' })
 }
 
+// 중복 체크 상태 초기화 함수
+const resetDuplicateCheck = () => {
+  if (!isCheckingDuplicate.value) {
+    isDuplicate.value = false
+    isNameChecked.value = false
+  }
+}
+
+// 이름 입력 처리 함수
 const handleNameInput = () => {
   const currentValue = formData.value.name
 
-  // 공백 입력 즉시 검사
+  // 공백 입력 검사
   if (currentValue.includes(' ')) {
     errors.value.name = t('instance.create.validation.name_pattern.no_spaces')
     return
@@ -440,21 +463,26 @@ const handleNameInput = () => {
   validateField('name')
 }
 
+// 필드 blur 이벤트 처리 함수 (사용자가 필드를 떠날 때 -> 해당 필드 유효성 검사)
 const handleBlur = (field: FormField) => {
   validateField(field)
 }
 
+// Flavor 상세 정보 업데이트 함수
 const updateFlavorDetail = (flavor: Flavor) => {
   formData.value.flavorDetail = flavor
 }
 
+// Enter 키 처리 함수
 const handleEnter = (currentField: FormField) => {
   if (!validateField(currentField)) return
 
+  // 필드 순서 정의
   const fieldOrder: FormField[] = ['name', 'image', 'flavor', 'network']
   const currentIndex = fieldOrder.indexOf(currentField)
   const nextField = fieldOrder[currentIndex + 1]
 
+  // 마지막 필드인 경우 전체 폼 유효성 검사 후, 생성 처리
   if (!nextField) {
     if (validateForm()) {
       handleCreate()
@@ -462,6 +490,7 @@ const handleEnter = (currentField: FormField) => {
     return
   }
 
+  // 다음 필드로 포커스 이동
   if (nextField === 'name') {
     nameInput.value?.focus()
   } else {

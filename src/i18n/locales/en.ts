@@ -241,6 +241,7 @@ export default {
     modal: {
       notification: 'Notification',
       dontShowToday: "Don't show today",
+      error: 'Error',
     },
   },
 }

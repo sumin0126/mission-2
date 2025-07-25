@@ -240,6 +240,7 @@ export default {
     modal: {
       notification: '알림',
       dontShowToday: '오늘 하루동안 보지 않기',
+      error: '오류',
     },
   },
 }
