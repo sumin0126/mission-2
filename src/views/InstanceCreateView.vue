@@ -389,6 +389,7 @@ const handleCreate = async () => {
   }
 
   try {
+    // 인스턴스 생성
     await loadingStore.withLoading(async () => {
       const result = await instanceStore.createInstance({
         name: formData.value.name,
@@ -403,7 +404,17 @@ const handleCreate = async () => {
         createdAt: new Date().toISOString(),
       })
 
-      await instanceStore.getInstances()
+      try {
+        // 인스턴스 목록 새로고침 시도
+        await instanceStore.getInstances()
+      } catch (refreshError) {
+        // 목록 새로고침 실패 시 경고 처리
+        console.error(t('instance.detail.error.refreshList'), refreshError)
+        errorMessage.value = t('instance.detail.error.refreshListWarning')
+        showErrorModal.value = true
+        return result
+      }
+
       return result
     })
 
@@ -417,9 +428,10 @@ const handleCreate = async () => {
       showSuccessModal.value = true
     }
   } catch (error) {
-    errorMessage.value = t('instance.detail.error.update')
+    // 인스턴스 생성 실패 시 에러 처리
+    errorMessage.value = t('instance.detail.error.create')
     showErrorModal.value = true
-    console.error(t('instance.detail.error.updateLog'), error)
+    console.error(t('instance.detail.error.createLog'), error)
   }
 }
 

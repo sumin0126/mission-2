@@ -150,6 +150,11 @@ export default {
       error: {
         delete: '인스턴스를 삭제하는 중 오류가 발생했습니다.',
         deleteLog: '인스턴스 삭제 중 오류:',
+        create: '인스턴스 생성에 실패했습니다.',
+        createLog: '인스턴스 생성 오류:',
+        refreshList: '인스턴스 목록 새로고침 실패:',
+        refreshListWarning:
+          '인스턴스가 성공적으로 생성되었으나, 목록을 새로고침하지 못했습니다. 페이지를 수동으로 새로고침해 주세요.',
       },
 
       basicInfo: {

@@ -151,6 +151,11 @@ export default {
       error: {
         delete: 'An error occurred while deleting the instance.',
         deleteLog: 'Error while deleting instance:',
+        create: 'Failed to create instance.',
+        createLog: 'Instance creation error:',
+        refreshList: 'Failed to refresh instance list:',
+        refreshListWarning:
+          'Instance was created successfully, but the list could not be refreshed. Please refresh the page manually.',
       },
 
       basicInfo: {
